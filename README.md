@@ -142,8 +142,8 @@ API별 기준선 보고서는 [`reports/`](reports/README.md)에 있고, 폴더 
 | GET /api/sales/popular | [baseline.md](reports/sales-popular/baseline.md) | 처리량 상한 초당 약 70건, 시작 50초 만에 자동 중단, 요청 1건당 SQL 약 27문 |
 | POST /api/orders (정확성) | [accuracy-baseline.md](reports/orders/accuracy-baseline.md) | 번개 드롭 재고 10개에 100명 동시 주문: 3회 모두 성공 정확히 10건, 5xx 0건, DB 일치 |
 | POST /api/orders (순간 몰림) | [burst-baseline.md](reports/orders/burst-baseline.md) | 초당 250건까지 p95 4ms 이하, 500건 단계에서 p95 485ms로 한계 신호 |
-| POST /api/cart-items (정확성) | [accuracy-baseline.md](reports/cart-add/accuracy-baseline.md) | 같은 상품 동시 담기 200건: 5xx 3–10건, 성공 응답 중 27–36건 수량 유실(개선 전) |
-| POST /api/cart-items (속도) | [burst-baseline.md](reports/cart-add/burst-baseline.md) | 초당 500건까지 p95 7ms, 한계 신호 없음(개선 전) |
+| POST /api/cart-items (정확성) | [accuracy-baseline.md](reports/cart-add/accuracy-baseline.md) | 같은 상품 동시 담기 200건: 5xx 3–10건 → 0건, 수량 유실은 27–36건 → 18–31건으로 남음 ([수정 후](reports/cart-add/accuracy-after-fix.md)) |
+| POST /api/cart-items (속도) | [burst-baseline.md](reports/cart-add/burst-baseline.md) | 초당 500건 단계 p95 7ms → 44ms, 5xx 0건 ([수정 후](reports/cart-add/burst-after-fix.md)) |
 
 <sub>로컬에서 측정한 값이라 dev의 값과 다릅니다. 보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
 
