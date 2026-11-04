@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">
+  <style>
+    .bg { fill: #ffffff; }
+    .host { fill: #f6f8fa; stroke: #d0d7de; stroke-width: 1.5; }
+    .server { fill: #ffffff; stroke: #57606a; stroke-width: 1.5; }
+    .svc { fill: #ddf4ff; stroke: #54aeff; stroke-width: 1; }
+    .svc-data { fill: #fff8c5; stroke: #d4a72c; stroke-width: 1; }
+    .svc-mon { fill: #fbefff; stroke: #c297ff; stroke-width: 1; }
+    .k6 { fill: #eae6ff; stroke: #7d64ff; stroke-width: 1.5; }
+    .t { fill: #1f2328; font-size: 14px; }
+    .tb { fill: #1f2328; font-size: 15px; font-weight: 700; }
+    .ts { fill: #57606a; font-size: 12px; }
+    .line { stroke: #57606a; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+    .dash { stroke: #8c959f; stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; marker-end: url(#arrow); }
+    .lbl { fill: #57606a; font-size: 12px; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0d1117; }
+      .host { fill: #161b22; stroke: #30363d; }
+      .server { fill: #0d1117; stroke: #8b949e; }
+      .svc { fill: #0c2d6b; stroke: #388bfd; }
+      .svc-data { fill: #3d2e00; stroke: #bb8009; }
+      .svc-mon { fill: #271052; stroke: #8957e5; }
+      .k6 { fill: #1e1b4b; stroke: #8b7bff; }
+      .t, .tb { fill: #e6edf3; }
+      .ts, .lbl { fill: #8b949e; }
+      .line { stroke: #8b949e; }
+      .dash { stroke: #6e7681; }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8c959f"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="960" height="600"/>
+  <rect class="host" x="20" y="20" width="920" height="560" rx="12"/>
+  <text class="tb" x="40" y="48">Local (Docker Desktop) · 서버 컨테이너 4개, 각각 2 CPU · 메모리 2GB</text>
+
+  <!-- k6 -->
+  <rect class="k6" x="40" y="90" width="170" height="86" rx="10"/>
+  <text class="tb" x="125" y="124" text-anchor="middle">k6</text>
+  <text class="ts" x="125" y="146" text-anchor="middle">초당 요청 수를 올리며</text>
+  <text class="ts" x="125" y="164" text-anchor="middle">API 호출 (호스트에서 실행)</text>
+
+  <!-- app-server -->
+  <rect class="server" x="270" y="76" width="200" height="130" rx="10"/>
+  <text class="tb" x="370" y="100" text-anchor="middle">app-server</text>
+  <rect class="svc" x="288" y="116" width="164" height="70" rx="8"/>
+  <text class="t" x="370" y="142" text-anchor="middle">Spring Boot (app)</text>
+  <text class="ts" x="370" y="162" text-anchor="middle">1100MB · 힙 768MB</text>
+  <text class="ts" x="370" y="178" text-anchor="middle">localhost:8080 / 8081</text>
+
+  <!-- data-server -->
+  <rect class="server" x="258" y="260" width="224" height="250" rx="10"/>
+  <text class="tb" x="370" y="284" text-anchor="middle">data-server</text>
+  <rect class="svc-data" x="276" y="300" width="188" height="56" rx="8"/>
+  <text class="t" x="370" y="324" text-anchor="middle">MySQL 8.4</text>
+  <text class="ts" x="370" y="342" text-anchor="middle">600MB · 버퍼 풀 256MB</text>
+  <rect class="svc-data" x="276" y="366" width="188" height="56" rx="8"/>
+  <text class="t" x="370" y="390" text-anchor="middle">Redis 7</text>
+  <text class="ts" x="370" y="408" text-anchor="middle">200MB · maxmemory 128mb</text>
+  <rect class="svc-data" x="276" y="432" width="188" height="56" rx="8"/>
+  <text class="t" x="370" y="456" text-anchor="middle">Kafka</text>
+  <text class="ts" x="370" y="474" text-anchor="middle">700MB · 힙 384MB</text>
+
+  <!-- search-server -->
+  <rect class="server" x="520" y="76" width="200" height="130" rx="10"/>
+  <text class="tb" x="620" y="100" text-anchor="middle">search-server</text>
+  <rect class="svc-data" x="538" y="116" width="164" height="70" rx="8"/>
+  <text class="t" x="620" y="142" text-anchor="middle">Elasticsearch 9.2</text>
+  <text class="ts" x="620" y="162" text-anchor="middle">1400MB · 힙 768MB</text>
+  <text class="ts" x="620" y="178" text-anchor="middle">nori 형태소 분석기</text>
+
+  <!-- monitoring-server -->
+  <rect class="server" x="520" y="260" width="400" height="250" rx="10"/>
+  <text class="tb" x="720" y="284" text-anchor="middle">monitoring-server (dev에는 없음)</text>
+  <rect class="svc-mon" x="538" y="300" width="170" height="56" rx="8"/>
+  <text class="t" x="623" y="324" text-anchor="middle">Prometheus</text>
+  <text class="ts" x="623" y="342" text-anchor="middle">지표 수집 · localhost:9090</text>
+  <rect class="svc-mon" x="732" y="300" width="170" height="56" rx="8"/>
+  <text class="t" x="817" y="324" text-anchor="middle">Grafana</text>
+  <text class="ts" x="817" y="342" text-anchor="middle">대시보드 · localhost:3000</text>
+  <rect class="svc-mon" x="538" y="366" width="170" height="56" rx="8"/>
+  <text class="t" x="623" y="390" text-anchor="middle">Loki + Alloy</text>
+  <text class="ts" x="623" y="408" text-anchor="middle">앱 로그 수집</text>
+  <rect class="svc-mon" x="732" y="366" width="170" height="56" rx="8"/>
+  <text class="t" x="817" y="390" text-anchor="middle">Tempo</text>
+  <text class="ts" x="817" y="408" text-anchor="middle">요청 추적 (기준선에서는 끔)</text>
+  <rect class="svc-mon" x="538" y="432" width="364" height="56" rx="8"/>
+  <text class="t" x="720" y="456" text-anchor="middle">exporter 4개</text>
+  <text class="ts" x="720" y="474" text-anchor="middle">MySQL · Redis · Kafka · Elasticsearch 지표</text>
+
+  <!-- 화살표 -->
+  <path class="line" d="M210 133 L270 133"/>
+  <text class="lbl" x="214" y="124">HTTP</text>
+  <path class="line" d="M370 206 L370 260"/>
+  <text class="lbl" x="378" y="238">DB · 캐시 · 이벤트</text>
+  <path class="line" d="M470 141 L520 141"/>
+  <text class="lbl" x="474" y="132">검색</text>
+  <path class="dash" d="M620 260 L620 206"/>
+  <text class="lbl" x="628" y="236">지표</text>
+  <path class="dash" d="M540 260 L474 198"/>
+  <path class="dash" d="M520 330 L482 330"/>
+  <text class="lbl" x="488" y="322">수집</text>
+  <path class="dash" d="M125 176 L125 545 L720 545 L720 510"/>
+  <text class="lbl" x="140" y="538">k6 결과를 Prometheus로 자동 전송</text>
+  <text class="ts" x="40" y="570">실선: 요청 흐름 · 점선: 지표와 로그 · 호스트에서는 localhost:8080(앱), 9090(Prometheus), 3000(Grafana)만 열림</text>
+</svg>

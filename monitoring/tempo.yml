@@ -1,0 +1,28 @@
+# 로컬 부하 테스트용 Tempo(추적 저장). 앱이 OTLP로 보낸 추적을 받아 로컬 디스크에 24시간만 보관한다.
+stream_over_http_enabled: true
+
+server:
+  http_listen_port: 3200
+  # 같은 네트워크를 쓰는 Loki가 기본 gRPC 포트 9095를 쓰므로 겹치지 않게 바꾼다.
+  grpc_listen_port: 9097
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+          endpoint: 0.0.0.0:4318
+        grpc:
+          endpoint: 0.0.0.0:4317
+
+compactor:
+  compaction:
+    block_retention: 24h
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /var/tempo/wal
+    local:
+      path: /var/tempo/blocks

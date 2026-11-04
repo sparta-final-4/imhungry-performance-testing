@@ -1,0 +1,188 @@
+diff --git a/take-care-of-my-fridge-be/build.gradle b/take-care-of-my-fridge-be/build.gradle
+index 7d6f6070..9067c523 100644
+--- a/take-care-of-my-fridge-be/build.gradle
++++ b/take-care-of-my-fridge-be/build.gradle
+@@ -54,0 +55,5 @@ dependencies {
++    // 메트릭 (Actuator + Prometheus 형식 출력)
++    implementation 'org.springframework.boot:spring-boot-starter-actuator'
++    implementation 'io.micrometer:micrometer-registry-prometheus'
++    implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
++
+diff --git a/take-care-of-my-fridge-be/src/main/java/org/example/takecareofmyfridgebe/global/config/ActuatorSecurityConfig.java b/take-care-of-my-fridge-be/src/main/java/org/example/takecareofmyfridgebe/global/config/ActuatorSecurityConfig.java
+new file mode 100644
+index 00000000..bc9a5da9
+--- /dev/null
++++ b/take-care-of-my-fridge-be/src/main/java/org/example/takecareofmyfridgebe/global/config/ActuatorSecurityConfig.java
+@@ -0,0 +1,58 @@
++package org.example.takecareofmyfridgebe.global.config;
++
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.core.annotation.Order;
++import org.springframework.security.authentication.ProviderManager;
++import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
++import org.springframework.security.config.Customizer;
++import org.springframework.security.config.annotation.web.builders.HttpSecurity;
++import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
++import org.springframework.security.config.http.SessionCreationPolicy;
++import org.springframework.security.core.userdetails.User;
++import org.springframework.security.crypto.password.PasswordEncoder;
++import org.springframework.security.provisioning.InMemoryUserDetailsManager;
++import org.springframework.security.web.SecurityFilterChain;
++
++// /actuator 경로 전용 보안. health는 열어 두고, 나머지(prometheus)는 메트릭 계정의 HTTP Basic으로만 읽는다.
++// 이 체인은 전역 인증 관리자(스프링 부트가 만드는 기본 계정 포함)로 넘기지 않도록 부모 없는 관리자를 따로 쓴다.
++// 메트릭 계정 비밀번호가 비어 있으면 health 외에는 아무도 읽지 못한다.
++@Configuration
++public class ActuatorSecurityConfig {
++
++    @Bean
++    @Order(1)
++    SecurityFilterChain actuatorSecurityFilterChain(
++            HttpSecurity http,
++            PasswordEncoder passwordEncoder,
++            @Value("${app.actuator.username}") String username,
++            @Value("${app.actuator.password:}") String password) throws Exception {
++        boolean scrapeEnabled = !password.isBlank();
++
++        InMemoryUserDetailsManager users = new InMemoryUserDetailsManager();
++        if (scrapeEnabled) {
++            users.createUser(User.withUsername(username)
++                    .password(passwordEncoder.encode(password))
++                    .roles("ACTUATOR")
++                    .build());
++        }
++        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(users);
++        provider.setPasswordEncoder(passwordEncoder);
++
++        http.securityMatcher("/actuator/**")
++                .authorizeHttpRequests(auth -> {
++                    auth.requestMatchers("/actuator/health", "/actuator/health/**").permitAll();
++                    if (scrapeEnabled) {
++                        auth.anyRequest().authenticated();
++                        return;
++                    }
++                    auth.anyRequest().denyAll();
++                })
++                .authenticationManager(new ProviderManager(provider))
++                .httpBasic(Customizer.withDefaults())
++                .csrf(AbstractHttpConfigurer::disable)
++                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
++        return http.build();
++    }
++}
+diff --git a/take-care-of-my-fridge-be/src/main/resources/application-loadtest.yml b/take-care-of-my-fridge-be/src/main/resources/application-loadtest.yml
+new file mode 100644
+index 00000000..9ead4d02
+--- /dev/null
++++ b/take-care-of-my-fridge-be/src/main/resources/application-loadtest.yml
+@@ -0,0 +1,37 @@
++# 로컬 부하 테스트 전용 프로필. dev에 합치지 않는다.
++# dev 서버의 prod 프로필(application-prod.yml)과 같은 구조로, Parameter Store 대신 맥의 Docker 데이터 서버
++# (docker-compose.yaml의 mysql, redis, kafka, elasticsearch)에 서비스 이름으로 접속한다.
++# 앱 서버 컨테이너가 compose 네트워크에 붙어서 실행되어야 이 이름들이 풀린다.
++# 비밀 값(OPENAI_API_KEY 등)은 이 파일에 넣지 않고 환경변수로 넘긴다.
++spring:
++  jpa:
++    show-sql: false
++    properties:
++      hibernate:
++        format_sql: false
++
++  datasource:
++    url: jdbc:mysql://${MYSQL_HOST:mysql}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:fridge_db}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
++    username: ${MYSQL_USER:fridge_user}
++    password: ${MYSQL_PASSWORD:12345678}
++
++  data:
++    redis:
++      host: ${REDIS_HOST:redis}
++      port: ${REDIS_PORT:6379}
++
++  kafka:
++    # 컨테이너끼리는 kafka의 내부 리스너(29092)로 붙는다.
++    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
++
++  elasticsearch:
++    uris: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
++
++# 로그를 파일로 남겨 Alloy가 읽어 Loki로 보낸다(컨테이너의 /logs를 맥의 logs 폴더에 연결).
++logging:
++  file:
++    name: ${LOG_FILE:/logs/app.log}
++
++# 예측 워커. dev와 같은 이름(forecast-worker)으로 compose 네트워크에서 붙는다.
++forecast:
++  worker-url: ${FORECAST_WORKER_URL:http://forecast-worker:8091}
+diff --git a/take-care-of-my-fridge-be/src/main/resources/application-prod.yml b/take-care-of-my-fridge-be/src/main/resources/application-prod.yml
+index 8aee7f1d..c1d6a292 100644
+--- a/take-care-of-my-fridge-be/src/main/resources/application-prod.yml
++++ b/take-care-of-my-fridge-be/src/main/resources/application-prod.yml
+@@ -33,0 +34,8 @@ spring:
++# 상태 상세는 숨기고, 메트릭 계정 비밀번호는 환경변수(Parameter Store)에서만 받는다.
++# MANAGEMENT_SCRAPE_PASSWORD 가 없어도 기동은 되지만 /actuator/prometheus 는 아무도 읽지 못한다.
++management:
++  endpoint:
++    health:
++      show-details: never
++      show-components: never
++
+@@ -34,0 +43,2 @@ app:
++  actuator:
++    password: ${MANAGEMENT_SCRAPE_PASSWORD:}
+diff --git a/take-care-of-my-fridge-be/src/main/resources/application.yml b/take-care-of-my-fridge-be/src/main/resources/application.yml
+index 56dffc3e..1890a14f 100644
+--- a/take-care-of-my-fridge-be/src/main/resources/application.yml
++++ b/take-care-of-my-fridge-be/src/main/resources/application.yml
+@@ -60,0 +61,38 @@ spring:
++# 메트릭. 앱 포트와 분리한 관리 포트(8081)로 health, prometheus만 연다.
++management:
++  server:
++    port: ${MANAGEMENT_PORT:8081}
++  metrics:
++    distribution:
++      # 요청 시간을 구간별로 내보내 Prometheus에서 p90·p95·p99를 histogram_quantile로 계산한다.
++      percentiles-histogram:
++        http.server.requests: true
++  # 추적(Tempo)은 기본이 꺼짐이다. 켤 때만 TRACING_ENABLED=true, 샘플링은 TRACING_SAMPLING(기본 10%)로 정한다.
++  # 켜 두면 요청마다 CPU·메모리를 더 써서 측정 숫자가 달라지므로 기준선 측정에는 끈다.
++  tracing:
++    enabled: ${TRACING_ENABLED:false}
++    sampling:
++      probability: ${TRACING_SAMPLING:0.1}
++  opentelemetry:
++    tracing:
++      export:
++        otlp:
++          endpoint: ${OTLP_TRACING_ENDPOINT:http://tempo:4318/v1/traces}
++  # 메트릭은 Prometheus가 가져가므로 OTLP로 보내지 않는다(추적 라이브러리가 켜는 기본값을 끔).
++  otlp:
++    metrics:
++      export:
++        enabled: false
++  logging:
++    export:
++      otlp:
++        enabled: false
++  endpoints:
++    web:
++      exposure:
++        include: health,prometheus
++  endpoint:
++    health:
++      show-details: always
++      show-components: always
++
+@@ -61,0 +100,5 @@ app:
++  # /actuator/prometheus 를 읽는 계정(HTTP Basic). 비밀번호가 비면 계정을 만들지 않아 아무도 읽지 못한다.
++  # 아래 비밀번호 기본값은 로컬 전용이고, 배포(application-prod.yml)는 기본값 없이 환경변수만 쓴다.
++  actuator:
++    username: ${MANAGEMENT_SCRAPE_USERNAME:prometheus}
++    password: ${MANAGEMENT_SCRAPE_PASSWORD:prometheus-local}
+@@ -168,0 +212,5 @@ forecast:
++
++logging:
++  # 로그 파일 경로. 비워 두면 파일로 남기지 않는다(로컬 로그 수집 때만 지정).
++  file:
++    name: ${LOG_FILE:}

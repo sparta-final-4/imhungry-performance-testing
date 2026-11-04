@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: fridge-be
+    metrics_path: /actuator/prometheus
+    # 앱의 로컬 기본 메트릭 계정과 같은 값이다(application.yml의 app.actuator). 배포 계정은 여기에 쓰지 않는다.
+    basic_auth:
+      username: prometheus
+      password: prometheus-local
+    static_configs:
+      - targets: ["app-server:8081"]
+    
+
+  # exporter(monitoring-server 안). 서버 컨테이너에 붙은 네트워크 별칭으로 붙는다.
+  - job_name: mysql
+    static_configs:
+      - targets: ["mysqld-exporter:9104"]
+
+  - job_name: redis
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+
+  - job_name: kafka
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+
+  - job_name: elasticsearch
+    static_configs:
+      - targets: ["elasticsearch-exporter:9114"]
+
+  # Tempo 자체 지표(수신·폐기 스팬). 추적을 켠 측정에서 저장소가 못 따라가는지 본다.
+  - job_name: tempo
+    static_configs:
+      - targets: ["tempo:3200"]

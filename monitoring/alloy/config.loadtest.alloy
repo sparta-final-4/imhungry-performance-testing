@@ -1,0 +1,88 @@
+// 부하 테스트용 서버 4대 구조(env/up.sh)에서 쓰는 설정.
+// 앱 서버: 백엔드가 남긴 로그 파일을 읽어 Loki로 보낸다.
+local.file_match "fridge_be" {
+  path_targets = [{
+    "__path__" = "/var/log/fridge/*.log",
+    "job"      = "fridge-be",
+    "server"   = "app",
+  }]
+}
+
+loki.source.file "fridge_be" {
+  targets    = local.file_match.fridge_be.targets
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// 데이터·검색 서버: 서버 안쪽 Docker의 컨테이너 로그를 읽는다.
+// 각 서버 안에 읽기 전용 docker-socket-proxy(2375)를 두고, 서버 컨테이너 이름으로 접속한다.
+discovery.docker "data" {
+  host = "tcp://data-server:2375"
+}
+
+discovery.relabel "data" {
+  targets = discovery.docker.data.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(mysql|redis|kafka)"
+    action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+  rule {
+    target_label = "job"
+    replacement  = "fridge-infra"
+  }
+  rule {
+    target_label = "server"
+    replacement  = "data"
+  }
+}
+
+loki.source.docker "data" {
+  host       = "tcp://data-server:2375"
+  targets    = discovery.relabel.data.output
+  forward_to = [loki.write.local.receiver]
+}
+
+discovery.docker "search" {
+  host = "tcp://search-server:2375"
+}
+
+discovery.relabel "search" {
+  targets = discovery.docker.search.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/elasticsearch"
+    action        = "keep"
+  }
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+  rule {
+    target_label = "job"
+    replacement  = "fridge-infra"
+  }
+  rule {
+    target_label = "server"
+    replacement  = "search"
+  }
+}
+
+loki.source.docker "search" {
+  host       = "tcp://search-server:2375"
+  targets    = discovery.relabel.search.output
+  forward_to = [loki.write.local.receiver]
+}

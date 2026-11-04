@@ -1,0 +1,11 @@
+.DS_Store
+.idea/
+*.iml
+.vscode/
+
+# 실행 결과(로그인 쿠키가 들어 있음)
+results/
+# 앱 로그(Alloy가 읽어 Loki로 보냄)
+logs/
+# 앱 서버 환경변수(로컬 전용)
+.loadtest.env
