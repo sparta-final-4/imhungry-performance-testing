@@ -132,9 +132,18 @@ API별 기준선 보고서는 [`reports/`](reports/README.md)에 있고, 폴더 
 
 | API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 보고서 | 핵심 결과 |
 | --- | --- | --- |
-| GET /api/recipes/popular | [baseline.md](reports/recipes-popular/baseline.md) | 20명 동시 p95 중앙값: 캐시 없음 3,709ms → 캐시 적용 8.7ms |
-| GET /api/search/recipes | [recipes-baseline.md](reports/search/recipes-baseline.md) | 처리량 상한 초당 약 600건, 한계 구간에서 커넥션 풀 10개가 가득 참 |
-| GET /api/search/products | [products-baseline.md](reports/search/products-baseline.md) | 처리량 상한 초당 약 500건, 요청 1건당 트랜잭션 2번 |
+| GET /api/recipes/popular | [baseline.md](reports/recipes-popular/baseline.md) | 20명 동시 p95 중앙값: 캐시 없음 4,094ms → 캐시 적용 5.9ms |
+| GET /api/recipes/classifications | [baseline.md](reports/recipe-classifications/baseline.md) | 2,000건/초까지 올렸을 때 p95 중앙값: 캐시 없음 51ms(마지막 단계에서 커넥션 풀 가득) → 캐시 적용 1ms |
+| GET /api/search/recipes | [recipes-baseline.md](reports/search/recipes-baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 36ms, 마지막 단계에서 커넥션 풀 가득 |
+| GET /api/search/products | [products-baseline.md](reports/search/products-baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 3ms(상품 17개의 작은 데이터) |
+| GET /api/products | [baseline.md](reports/products/baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 2ms(상품 17개의 작은 데이터) |
+| GET /api/recipes | [baseline.md](reports/recipes/baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 2ms |
+| GET /api/cart-items | [baseline.md](reports/cart-read/baseline.md) | 처리량 상한 초당 약 1,000건, 2,000건 단계에서 커넥션 풀 가득, 요청 1건당 SQL 약 25문 |
+| GET /api/sales/popular | [baseline.md](reports/sales-popular/baseline.md) | 처리량 상한 초당 약 70건, 시작 50초 만에 자동 중단, 요청 1건당 SQL 약 27문 |
+| POST /api/orders (정확성) | [accuracy-baseline.md](reports/orders/accuracy-baseline.md) | 번개 드롭 재고 10개에 100명 동시 주문: 3회 모두 성공 정확히 10건, 5xx 0건, DB 일치 |
+| POST /api/orders (순간 몰림) | [burst-baseline.md](reports/orders/burst-baseline.md) | 초당 250건까지 p95 4ms 이하, 500건 단계에서 p95 485ms로 한계 신호 |
+| POST /api/cart-items (정확성) | [accuracy-baseline.md](reports/cart-add/accuracy-baseline.md) | 같은 상품 동시 담기 200건: 5xx 3–10건, 성공 응답 중 27–36건 수량 유실(개선 전) |
+| POST /api/cart-items (속도) | [burst-baseline.md](reports/cart-add/burst-baseline.md) | 초당 500건까지 p95 7ms, 한계 신호 없음(개선 전) |
 
 <sub>로컬에서 측정한 값이라 dev의 값과 다릅니다. 보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
 
