@@ -13,7 +13,7 @@
 - --constant: 단계마다 초당 요청 수를 고정한 시나리오(주문·담기 순간 몰림)라면 단계별 목표 요청 수(속도 × 시간 + 1)와 실제로 보낸 요청 수를 견준다.
 - --uri, --method: 앱이 받은 요청 수로 부하 시작 시각을 잡고 앱 쪽 p95를 읽는 데 쓴다.
 - 서버 지표 구간은 앱이 요청을 받기 시작한 시각에서 --steps 순서대로 잘라 추정한다(경계에 ±10초 정도 오차가 있다).
-- Prometheus 주소는 --prom(기본 http://localhost:9090).
+- Prometheus 주소는 --prom(기본 http://127.0.0.1:9090).
 표는 3회 중앙값과 회차별 값을 마크다운으로 출력한다. 요청 1건당 쿼리 수는 MySQL 초당 쿼리 수를 앱 초당 요청 수로 나눈 값이다.
 """
 import argparse
@@ -123,7 +123,7 @@ def main():
     ap.add_argument("--since", help="이 시각(YYYYMMDD-HHMMSS) 이후에 시작한 실행만 쓴다")
     ap.add_argument("--until", help="이 시각(YYYYMMDD-HHMMSS) 이전에 시작한 실행만 쓴다")
     ap.add_argument("--constant", action="store_true", help="단계마다 초당 요청 수를 고정한 시나리오(주문·담기 순간 몰림)라면 목표 요청 수를 계산한다")
-    ap.add_argument("--prom", default="http://localhost:9090")
+    ap.add_argument("--prom", default="http://127.0.0.1:9090")
     ap.add_argument("--results", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results"))
     a = ap.parse_args()
 

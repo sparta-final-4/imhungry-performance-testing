@@ -5,7 +5,7 @@
 #       --reset scenarios/orders/orders-accuracy-reset.sql --verify scenarios/orders/orders-accuracy-verify.sql -- \
 #       -e ADMIN_PASSWORD=<로컬 관리자 비밀번호> scenarios/orders/orders-burst.js
 # 환경변수(기본값): DB_SERVER(data-server, MySQL이 든 서버 컨테이너), DB_CONTAINER(mysql), DB_NAME(fridge_db), DB_USER·DB_PASSWORD(필수),
-#   APP_HEALTH_URL(http://localhost:8081/actuator/health), APP_CONTAINER(app-server, 메모리 부족 종료 기록을 보는 바깥 컨테이너)
+#   APP_HEALTH_URL(http://127.0.0.1:8081/actuator/health), APP_CONTAINER(app-server, 메모리 부족 종료 기록을 보는 바깥 컨테이너)
 # 호스트(이 컴퓨터) 부하: 앱도 이 컴퓨터의 Docker 안에서 돌아서 다른 프로그램이 CPU를 쓰면 숫자가 흔들린다.
 #   시작 전 1분 부하 평균이 HOST_LOAD_MAX(기본 CPU 코어 수의 절반)보다 높으면 CPU를 많이 쓰는 프로세스를 보여 주고 종료 코드 4로 멈춘다.
 #   그래도 돌리려면 HOST_BUSY_OK=1을 붙인다(그 회차는 숫자를 쓰지 않는 것을 권한다). 시작 전과 끝난 뒤 부하 평균은 verify 파일에도 남는다.
@@ -15,7 +15,7 @@ set -uo pipefail
 DB_SERVER="${DB_SERVER:-data-server}"
 DB_CONTAINER="${DB_CONTAINER:-mysql}"
 DB_NAME="${DB_NAME:-fridge_db}"
-APP_HEALTH_URL="${APP_HEALTH_URL:-http://localhost:8081/actuator/health}"
+APP_HEALTH_URL="${APP_HEALTH_URL:-http://127.0.0.1:8081/actuator/health}"
 APP_CONTAINER="${APP_CONTAINER:-app-server}"
 : "${DB_USER:?DB_USER 환경변수가 필요합니다}"
 : "${DB_PASSWORD:?DB_PASSWORD 환경변수가 필요합니다}"

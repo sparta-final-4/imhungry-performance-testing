@@ -3,7 +3,7 @@
 #   ./tools/run.sh <폴더>/<스크립트>.js [k6 옵션...]
 # 예) ./tools/run.sh scenarios/products/products.js
 #     ./tools/run.sh -e SMOKE=1 scenarios/products/products.js            (옵션은 스크립트 이름 앞에 둔다)
-# Prometheus(localhost:9090, PROM_URL로 바꿈)가 응답하면 결과를 자동으로 Prometheus에도 보낸다(옵션을 따로 줄 필요 없음).
+# Prometheus(127.0.0.1:9090, PROM_URL로 바꿈)가 응답하면 결과를 자동으로 Prometheus에도 보낸다(옵션을 따로 줄 필요 없음).
 #     보내지 않으려면 NO_PROM=1을 붙인다. 응답이 없으면 파일만 남긴다.
 # 남는 파일: results/<스크립트 이름>-<시각>.html (보고서), .json (요약 수치), .txt (터미널 출력)
 set -euo pipefail
@@ -20,7 +20,7 @@ mkdir -p "$dir/results"
 
 cd "$dir"
 # 모니터링이 떠 있으면 k6 결과를 Prometheus로도 보낸다. 이미 -o experimental-prometheus-rw를 줬으면 그대로 둔다.
-PROM_URL="${PROM_URL:-http://localhost:9090}"
+PROM_URL="${PROM_URL:-http://127.0.0.1:9090}"
 if [[ "${NO_PROM:-0}" != "1" && " ${args[*]-} " != *experimental-prometheus-rw* ]] \
    && [[ "$(curl -s -m 2 -o /dev/null -w '%{http_code}' "$PROM_URL/-/ready")" == "200" ]]; then
   export K6_PROMETHEUS_RW_SERVER_URL="${K6_PROMETHEUS_RW_SERVER_URL:-$PROM_URL/api/v1/write}"

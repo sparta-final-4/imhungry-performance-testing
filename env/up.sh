@@ -137,13 +137,13 @@ step "7. 점검"
 ok=1
 check() { if eval "$2"; then echo "OK    $1"; else echo "실패  $1"; ok=0; fi; }
 echo -n "앱 기동 대기"
-for _ in $(seq 1 60); do [ "$(curl -s -m 3 -o /dev/null -w '%{http_code}' localhost:8081/actuator/health)" = 200 ] && break; echo -n .; sleep 5; done; echo
-check "앱 health 200 (localhost:8081)" '[ "$(curl -s -m 3 -o /dev/null -w "%{http_code}" localhost:8081/actuator/health)" = 200 ]'
+for _ in $(seq 1 60); do [ "$(curl -s -m 3 -o /dev/null -w '%{http_code}' 127.0.0.1:8081/actuator/health)" = 200 ] && break; echo -n .; sleep 5; done; echo
+check "앱 health 200 (127.0.0.1:8081)" '[ "$(curl -s -m 3 -o /dev/null -w "%{http_code}" 127.0.0.1:8081/actuator/health)" = 200 ]'
 check "앱 컨테이너 메모리 제한 1100MB" '[ "$(inner app-server inspect -f "{{.HostConfig.Memory}}" app)" = 1153433600 ]'
 check "앱 JVM 힙 768MB" 'inner app-server exec app printenv JAVA_TOOL_OPTIONS | grep -q "Xmx768m"'
-check "Prometheus 타깃 6개 up" '[ "$(curl -s -m 5 localhost:9090/api/v1/targets | grep -o "\"health\":\"up\"" | wc -l | tr -d " ")" -ge 6 ]'
+check "Prometheus 타깃 6개 up" '[ "$(curl -s -m 5 127.0.0.1:9090/api/v1/targets | grep -o "\"health\":\"up\"" | wc -l | tr -d " ")" -ge 6 ]'
 check "k6 설치됨, v2 이상 (현재: ${K6_VER:-없음})" '[ "${K6_VER%%.*}" -ge 2 ] 2>/dev/null'
-check "Grafana 응답 (localhost:3000)" '[ "$(curl -s -m 3 -o /dev/null -w "%{http_code}" localhost:3000/api/health)" = 200 ]'
+check "Grafana 응답 (127.0.0.1:3000)" '[ "$(curl -s -m 3 -o /dev/null -w "%{http_code}" 127.0.0.1:3000/api/health)" = 200 ]'
 check "DB에 레시피 있음 (${recipes}개)" '[ "${recipes:-0}" -gt 0 ]'
 echo
 [ $ok = 1 ] && echo "환경이 준비됐습니다. 측정은 README.md의 '실행 방법'을 따르세요." && exit 0
