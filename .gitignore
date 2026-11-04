@@ -9,3 +9,4 @@ results/
 logs/
 # 앱 서버 환경변수(로컬 전용)
 .loadtest.env
+__pycache__/
