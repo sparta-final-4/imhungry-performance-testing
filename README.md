@@ -49,7 +49,7 @@ dev와 같은 서버 구성을 컨테이너로 만들고, 같은 시나리오를
 dev는 서버 한 대(2 CPU · 2GB)를 그 위의 컨테이너들이 나눠 씁니다. 컨테이너별 CPU 제한은 없고 메모리 제한만 있습니다. 서버를 바깥 컨테이너(2 CPU · 2GB)로 만들고 그 안에서 컨테이너를 실행하면 이 구조가 그대로 재현됩니다.
 
 - **서버 단위로 CPU를 나눠 씁니다.** 데이터 서버에서 MySQL·Redis·Kafka가 2 CPU를 서로 경쟁하는 모습이 dev와 같게 나옵니다. 컨테이너를 한 단계만 쓰면 제한을 안 두었을 때는 호스트 코어 전체를 쓰고, 컨테이너마다 제한을 두면 서로 경쟁하지 않아서 이 모습을 만들 수 없습니다.
-- **병목이 어느 서버에서 생기는지 dev와 같은 단위로 봅니다.** 예를 들어 MySQL이 데이터 서버 CPU 2개를 거의 다 쓰는 것을 서버 단위 지표로 확인할 수 있습니다.
+- **서버 단위로 CPU 사용량을 볼 수 있습니다.** 다만 어느 서버에서 먼저 막히는지는 이 환경의 관찰이라 dev에서도 같다고 보지 않습니다.
 - **메모리도 서버 단위로 나눠 씁니다.** 서버 2GB 안에서 컨테이너별 제한(MySQL 600MB, Redis 200MB, Kafka 700MB 등)이 함께 적용됩니다.
 
 **알아 둘 점**
@@ -67,7 +67,7 @@ dev는 서버 한 대(2 CPU · 2GB)를 그 위의 컨테이너들이 나눠 씁�
 - **다름**: CPU 종류(dev는 ARM t4g), CPU 크레딧에 따른 버스트 제한(로컬에서는 재현하지 못함), 서버 사이 네트워크(로컬은 같은 컴퓨터)
 - **영향**: 서버 4대가 한 컴퓨터의 CPU를 나눠 써서, 다른 프로그램이 CPU를 쓰면 숫자가 흔들립니다
 
-이 차이 때문에 측정한 절대값은 dev 성능으로 그대로 쓰지 않습니다. **같은 조건의 개선 전후 비교와 병목이 어디인지**(커넥션 풀, 쿼리 수, 캐시)만 봅니다.
+이 차이 때문에 측정한 절대값은 dev 성능으로 그대로 쓰지 않습니다. **같은 조건의 개선 전후 비교와 요청 1건의 작업량**(요청당 SQL 문 수, 트랜잭션 수, 실행 계획)만 봅니다. 어느 서버에서 먼저 막히는지는 환경에 따라 달라 결론으로 쓰지 않습니다.
 
 ### 2-2. 앱은 소스코드 저장소에 두고 측정용 변경만 얹습니다
 
@@ -94,7 +94,7 @@ dev는 서버 한 대(2 CPU · 2GB)를 그 위의 컨테이너들이 나눠 씁�
 - `MAX_DROPPED`: 못 따라간 요청(`dropped_iterations`)이 이 수를 넘으면 자동 중단. 기본 20,000
 
 - 자동 중단: 시작 30초 뒤부터 누적 p95가 2000ms를 넘거나 실패율이 5%를 넘으면 멈춥니다. 최근 구간이 아니라 누적 값이라 잠깐 튀는 것은 못 막습니다.
-- 한계 근처의 p95는 회차마다 크게 흔들립니다. 그래서 개선 전후는 처리 상한의 약 60~70%를 길게 유지하는 고정 속도(`PLATEAU`)로도 비교합니다. 속도는 같은 세션의 단계형 결과로 정하고, 지난 세션의 값을 그대로 쓰지 않습니다.
+- 한계 근처의 p95는 회차마다 크게 흔들립니다. 그래서 개선 전후는 비교할 속도(예: 초당 300건)를 정해 길게 유지하는 고정 속도(`PLATEAU`)로 비교합니다. 속도는 같은 세션의 단계형 결과로 정하고, 지난 세션의 값을 그대로 쓰지 않습니다.
 </details>
 
 <details>
@@ -133,17 +133,20 @@ API별 기준선 보고서는 [`reports/`](reports/README.md)에 있고, 폴더 
 | API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 보고서 | 핵심 결과 |
 | --- | --- | --- |
 | GET /api/recipes/popular | [baseline.md](reports/recipes-popular/baseline.md) | 20명 동시 p95 중앙값: 캐시 없음 4,094ms → 캐시 적용 5.9ms |
-| GET /api/recipes/classifications | [baseline.md](reports/recipe-classifications/baseline.md) | 2,000건/초까지 올렸을 때 p95 중앙값: 캐시 없음 51ms(마지막 단계에서 커넥션 풀 가득) → 캐시 적용 1ms |
-| GET /api/search/recipes | [recipes-baseline.md](reports/search/recipes-baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 36ms, 마지막 단계에서 커넥션 풀 가득 |
+| GET /api/recipes/classifications | [baseline.md](reports/recipe-classifications/baseline.md) | 2,000건/초까지 올렸을 때 p95 중앙값: 캐시 없음 51ms → 캐시 적용 1ms |
+| GET /api/search/recipes | [recipes-baseline.md](reports/search/recipes-baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 36ms |
 | GET /api/search/products | [products-baseline.md](reports/search/products-baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 3ms(상품 17개의 작은 데이터) |
 | GET /api/products | [baseline.md](reports/products/baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 2ms(상품 17개의 작은 데이터) |
 | GET /api/recipes | [baseline.md](reports/recipes/baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 2ms |
-| GET /api/cart-items | [baseline.md](reports/cart-read/baseline.md) | 처리량 상한 초당 약 1,000건, 2,000건 단계에서 커넥션 풀 가득, 요청 1건당 SQL 약 25문 |
-| GET /api/sales/popular | [baseline.md](reports/sales-popular/baseline.md) | 처리량 상한 초당 약 70건, 시작 50초 만에 자동 중단, 요청 1건당 SQL 약 27문 |
+| GET /api/cart-items | [baseline.md](reports/cart-read/baseline.md) | 1,000건 단계 p95 4ms, 2,000건 단계 p95 440ms. 요청 1건당 SQL 28문(데이터 8, 트랜잭션 제어 20) |
+| GET /api/sales/popular | [baseline.md](reports/sales-popular/baseline.md) | 시작 50초 만에 자동 중단(초당 약 167건까지 올리던 중). 요청마다 클릭 이력 약 10만 행 집계 |
 | POST /api/orders (정확성) | [accuracy-baseline.md](reports/orders/accuracy-baseline.md) | 번개 드롭 재고 10개에 100명 동시 주문: 3회 모두 성공 정확히 10건, 5xx 0건, DB 일치 |
-| POST /api/orders (순간 몰림) | [burst-baseline.md](reports/orders/burst-baseline.md) | 초당 250건까지 p95 4ms 이하, 500건 단계에서 p95 485ms로 한계 신호 |
+| POST /api/orders (순간 몰림) | [burst-baseline.md](reports/orders/burst-baseline.md) | 초당 250건까지 p95 4ms 이하, 500건 단계에서 p95 485ms |
 | POST /api/cart-items (정확성) | [accuracy-baseline.md](reports/cart-add/accuracy-baseline.md) | 같은 상품 동시 담기 200건: 5xx 3–10건 → 0건, 수량 유실은 27–36건 → 18–31건으로 남음 ([수정 후](reports/cart-add/accuracy-after-fix.md)) |
 | POST /api/cart-items (속도) | [burst-baseline.md](reports/cart-add/burst-baseline.md) | 초당 500건 단계 p95 7ms → 44ms, 5xx 0건 ([수정 후](reports/cart-add/burst-after-fix.md)) |
+| POST /api/admin/sale-events/flash-drop | [baseline.md](reports/flash-drop/baseline.md) | 회원 5만 명: 등록 응답 229ms, 알림 5만 건이 전부 저장되기까지 38.7초(초당 약 1,300건, 유실·중복 없음) |
+| POST /api/webhooks/portone (정확성) | [accuracy-baseline.md](reports/webhook/accuracy-baseline.md) | 같은 웹훅 동시 200건: 기록 id당 1건, 서명 오류 20건 모두 401·기록 0건 (결제와 매칭되지 않는 웹훅) |
+| POST /api/webhooks/portone (속도) | [burst-baseline.md](reports/webhook/burst-baseline.md) | 1,000건 단계 p95 22ms, 2,000건 단계 p95 1,230ms (결제와 매칭되지 않는 웹훅) |
 
 <sub>로컬에서 측정한 값이라 dev의 값과 다릅니다. 보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
 
@@ -247,6 +250,8 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `cart-read/` | `cart-read.js` | GET /api/cart-items | 읽기 공통 부하. 회원 로그인·장바구니 준비는 시작 전에 함 |
 | `cart-add/` | `cart-add-accuracy.js`, `cart-add-burst.js` | POST /api/cart-items | 정확성: 같은 회원이 같은 상품을 동시에 담아 DB 수량 확인. 속도: (회원, 상품) 조합을 한 번씩 담으며 초당 요청 수 단계 상승. 확인 `cart-add-verify.sql`, 되돌리기 `cart-add-reset.sql` |
 | `orders/` | `orders-accuracy.js` | POST /api/orders | 번개 드롭 재고 동시 주문 정확성(회원 100명이 같은 순간 한 번씩). 확인 `orders-accuracy-verify.sql`, 되돌리기 `orders-accuracy-reset.sql` |
+| `flash-drop/` | `flash-drop-create.js` | POST /api/admin/sale-events/flash-drop | 등록 1건이 만드는 알림. `tools/run-flash-drop.sh`가 등록 응답 시간과 알림 저장 시간·개수를 DB로 확인. 회원 늘리기 `flash-drop-seed-members.sql`, 되돌리기 `flash-drop-reset.sql`, 정리 `flash-drop-clean-members.sql` |
+| `webhook/` | `webhook-accuracy.js`, `webhook-burst.js` | POST /api/webhooks/portone | 결제와 매칭되지 않는 결제 완료 웹훅을 k6가 서명해 보냄(서명은 `lib/webhook.js`). 정확성: 같은 webhook-id 동시 수신과 서명 오류. 속도: 초당 요청 수 단계 상승. 확인 `webhook-verify.sql`, 되돌리기 `webhook-reset.sql` |
 | `orders/` | `orders-burst.js` | POST /api/orders | 번개 드롭 순간 몰림 속도(초당 요청 수 단계 상승). 확인·되돌리기는 위 SQL을 같이 씀 |
 </details>
 
