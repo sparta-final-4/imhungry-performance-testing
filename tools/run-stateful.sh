@@ -9,7 +9,7 @@
 # 호스트(이 컴퓨터) 부하: 앱도 이 컴퓨터의 Docker 안에서 돌아서 다른 프로그램이 CPU를 쓰면 숫자가 흔들린다.
 #   시작 전 1분 부하 평균이 HOST_LOAD_MAX(기본 CPU 코어 수의 절반)보다 높으면 CPU를 많이 쓰는 프로세스를 보여 주고 종료 코드 4로 멈춘다.
 #   그래도 돌리려면 HOST_BUSY_OK=1을 붙인다(그 회차는 숫자를 쓰지 않는 것을 권한다). 시작 전과 끝난 뒤 부하 평균은 verify 파일에도 남는다.
-# DB 확인 결과는 results/<스크립트 이름>-<시각>-verify.txt에도 남는다. 로컬 전용이다. dev·main에서 실행하지 않는다.
+# DB 확인 결과는 results/local/<스크립트 이름>-<시각>-verify.txt에도 남는다. 로컬 전용이다. dev·main에서 실행하지 않는다.
 set -uo pipefail
 
 DB_SERVER="${DB_SERVER:-data-server}"
@@ -62,8 +62,8 @@ stamp_before="$(date +%Y%m%d-%H%M%S)"
 code=$?
 
 if [[ -n "$verify_sql" ]]; then
-  out="results/${name}-${stamp_before}-verify.txt"
-  mkdir -p results
+  out="results/local/${name}-${stamp_before}-verify.txt"
+  mkdir -p results/local
   { sql < "$verify_sql"; echo "호스트 1분 부하 평균(시작 전 → 끝난 뒤): $load_before → $(host_load) (CPU $NCPU개)"; } | tee "$out"
   echo "DB 확인 결과: $dir/$out"
 fi

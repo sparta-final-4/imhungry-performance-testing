@@ -7,7 +7,7 @@
   python3 tools/summarize.py --prefix cart-read --last 3 --steps 200:60,500:60,1000:60,2000:60 \
       --uri /api/cart-items --method GET
 
-- --prefix: results/ 아래 `<prefix>-<날짜>-<시각>.json` 중 가장 최근 --last개를 쓴다.
+- --prefix: results/local/ 아래(dev 결과는 --results results/dev) `<prefix>-<날짜>-<시각>.json` 중 가장 최근 --last개를 쓴다.
 - --steps: 단계 이름:초 목록. 단계 이름은 목표 속도나 구분 이름이고, 초는 그 단계가 이어진 시간이다.
 - --warmup: 앞의 워밍업 시간(초). 서버 지표 구간을 맞추는 데만 쓴다.
 - --constant: 단계마다 초당 요청 수를 고정한 시나리오(주문·담기 순간 몰림)라면 단계별 목표 요청 수(속도 × 시간 + 1)와 실제로 보낸 요청 수를 견준다.
@@ -124,7 +124,7 @@ def main():
     ap.add_argument("--until", help="이 시각(YYYYMMDD-HHMMSS) 이전에 시작한 실행만 쓴다")
     ap.add_argument("--constant", action="store_true", help="단계마다 초당 요청 수를 고정한 시나리오(주문·담기 순간 몰림)라면 목표 요청 수를 계산한다")
     ap.add_argument("--prom", default="http://127.0.0.1:9090")
-    ap.add_argument("--results", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results"))
+    ap.add_argument("--results", default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results", "local"))
     a = ap.parse_args()
 
     steps = [(s.split(":")[0], int(s.split(":")[1])) for s in a.steps.split(",")]

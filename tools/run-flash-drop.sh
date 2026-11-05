@@ -2,13 +2,13 @@
 # 번개 드롭 등록 한 건이 만드는 알림을 측정한다: 등록 요청 응답 시간 → 알림이 전부 저장될 때까지 걸리는 시간 → 개수(유실·중복).
 #   DB_USER=<사용자> DB_PASSWORD=<비밀번호> ./tools/run-flash-drop.sh -e ADMIN_PASSWORD=<로컬 관리자 비밀번호>
 # 회원 수는 미리 flash-drop-seed-members.sql로 맞춰 둔다(현재 일반 회원 전체가 알림을 받는다). 한 번 실행 = 등록 1건 = 회차 1번.
-# 결과는 stdout과 results/flash-drop-<시각>.txt에 남긴다. 로컬 전용이다. dev·main에서 실행하지 않는다.
+# 결과는 stdout과 results/local/flash-drop-<시각>.txt에 남긴다. 로컬 전용이다. dev·main에서 실행하지 않는다.
 set -uo pipefail
 dir="$(cd "$(dirname "$0")/.." && pwd)"; cd "$dir"
 : "${DB_USER:?DB_USER 환경변수가 필요합니다}"; : "${DB_PASSWORD:?DB_PASSWORD 환경변수가 필요합니다}"
 DB_SERVER="${DB_SERVER:-data-server}"; DB_CONTAINER="${DB_CONTAINER:-mysql}"; DB_NAME="${DB_NAME:-fridge_db}"
 TIMEOUT="${POLL_TIMEOUT:-900}"; STALL="${POLL_STALL:-90}"
-out="results/flash-drop-$(date +%Y%m%d-%H%M%S).txt"; mkdir -p results
+out="results/local/flash-drop-$(date +%Y%m%d-%H%M%S).txt"; mkdir -p results/local
 sql() { docker exec -i "$DB_SERVER" docker exec -i "$DB_CONTAINER" mysql -u"$DB_USER" -p"$DB_PASSWORD" --default-character-set=utf8mb4 -N -B "$DB_NAME" 2>/dev/null; }
 say() { echo "$@" | tee -a "$out"; }
 

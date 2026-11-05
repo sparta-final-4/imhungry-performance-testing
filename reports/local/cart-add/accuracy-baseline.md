@@ -2,7 +2,7 @@
 
 상태: 초안 · 측정일: 2026-11-05 · 도메인 담당자: 장준혁
 
-- 근거 자료: 스크립트 [`scenarios/cart-add/cart-add-accuracy.js`](../../scenarios/cart-add/cart-add-accuracy.js), DB 확인 [`cart-add-verify.sql`](../../scenarios/cart-add/cart-add-verify.sql), 되돌리기 [`cart-add-reset.sql`](../../scenarios/cart-add/cart-add-reset.sql). 환경과 실행 방법은 [README.md](../../README.md)를 따릅니다. 원본 결과 파일은 저장소에 두지 않습니다.
+- 근거 자료: 스크립트 [`scenarios/cart-add/cart-add-accuracy.js`](../../../scenarios/cart-add/cart-add-accuracy.js), DB 확인 [`cart-add-verify.sql`](../../../scenarios/cart-add/cart-add-verify.sql), 되돌리기 [`cart-add-reset.sql`](../../../scenarios/cart-add/cart-add-reset.sql). 환경과 실행 방법은 [README.md](../../../README.md)를 따릅니다. 원본 결과 파일은 저장소에 두지 않습니다.
 - 미정 항목: 합격선, 측정한 앱 커밋 해시와 이 저장소의 커밋 해시.
 - 이 보고서는 장바구니 담기 동시 충돌 처리를 고치기 전 앱의 기준선입니다.
 
