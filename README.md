@@ -159,6 +159,7 @@ k6를 집 회선에서 보내 dev(`https://dev.imhungry.click`, 앱 t4g.small 1�
 | API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 보고서 | 핵심 결과 |
 | --- | --- | --- |
 | GET /api/products (사용자 1,000명) | [baseline.md](reports/dev/products/baseline.md) | 약 900명(초당 430건)까지 p50 21–28ms, 1,000명에서 p50 80–90ms·p95 최대 820ms로 증가. 실패 0% |
+| 메인 화면 진입, 비로그인 (사용자 1,000명 목표) | [baseline.md](reports/dev/main/baseline.md) | 약 880명에서 p95 2초 초과로 자동 중단. 약 360명부터 초당 요청이 700–800건에서 멈춤. API별로는 인기 특가가 가장 느림(시작부터 쌓인 p95가 130초에 2.8초, 나머지 네 요청은 0.5초). 502 17건(0.02%) |
 
 <sub>보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
 
@@ -259,6 +260,7 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `recipes/` | `recipes.js` | GET /api/recipes, /api/recipes/{id} | 읽기 공통 부하 |
 | `products/` | `products.js` | GET /api/products, /api/products/{id} | 읽기 공통 부하 |
 | `products/` | `products-list-users.js` | GET /api/products | 사용자 수 고정 방식(1,000명이 1–3초 간격으로 목록 조회). 로컬·dev 공통 |
+| `main/` | `main-page-users.js` | 메인 화면(비로그인) 요청 5건 | 사용자 수 고정 방식(1,000명이 1–3초 간격으로 메인 화면 진입). dev에서 확인 |
 | `search/` | `search.js` | GET /api/search/recipes, /api/search/products | 읽기 공통 부하. `-e TARGET=recipes`, `products` |
 | `sales-popular/` | `sales-popular.js` | GET /api/sales/popular | 읽기 공통 부하. 시드 `seed-search-clicks.sql`(검색 클릭 10만 건) |
 | `cart-read/` | `cart-read.js` | GET /api/cart-items | 읽기 공통 부하. 회원 로그인·장바구니 준비는 시작 전에 함 |
