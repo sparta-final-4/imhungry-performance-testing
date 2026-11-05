@@ -161,6 +161,7 @@ k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)�
 | GET /api/products (가상 사용자(VU) 1,000명) | [baseline.md](reports/dev/products/baseline.md) | 약 900명(초당 430건)까지 p50 21–28ms, 1,000명에서 p50 80–90ms·p95 최대 820ms로 증가. 실패 0% |
 | 상품 상세 진입, 비로그인 (가상 사용자(VU) 1,000명) | [detail-baseline.md](reports/dev/products/detail-baseline.md) | 약 500명(초당 700건)까지 p95 20–34ms. 약 740명부터 초당 요청이 1,000–1,060건에서 멈추고 1,000명에서 p95 1.2–1.3초. 실패 0% |
 | 검색 결과 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [search-page-baseline.md](reports/dev/search/search-page-baseline.md) | 약 600명에서 p95 2초 초과로 자동 중단. 약 230명부터 초당 요청이 530–570건에서 멈춤. 검색 세 요청(자동완성, 레시피·상품 검색)이 먼저 길어짐. 실패 10건(0.02%) |
+| 레시피 상세 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [detail-baseline.md](reports/dev/recipes/detail-baseline.md) | 약 810명에서 p95 2초 초과로 자동 중단. 약 430명부터 초당 요청이 810–865건에서 멈춤. 실패 0% |
 | 메인 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [baseline.md](reports/dev/main/baseline.md) | 약 880명에서 p95 2초 초과로 자동 중단. 약 360명부터 초당 요청이 700–800건에서 멈춤. API별로는 지금 뜨는 할인이 가장 느림(시작부터 쌓인 p95가 130초에 2.8초, 나머지 네 요청은 0.5초). 502 17건(0.02%) |
 
 <sub>보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
@@ -260,6 +261,7 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `recipes-popular/` | `recipes-popular.js` | GET /api/recipes/popular | 20명 동시. 캐시 없이는 `run-no-cache.sh`. 시드 `seed-cooking-logs.sql`(요리 기록 10만 건, 후기 5천 건) |
 | `recipe-classifications/` | `recipe-classifications.js` | GET /api/recipes/classifications | 캐시 없이는 `run-no-cache.sh` |
 | `recipes/` | `recipes.js` | GET /api/recipes, /api/recipes/{id} | 읽기 공통 부하 |
+| `recipes/` | `recipe-detail-users.js` | 레시피 상세(비로그인) 요청 5건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 레시피 상세 진입). dev.imhungry.click에서 확인 |
 | `products/` | `products.js` | GET /api/products, /api/products/{id} | 읽기 공통 부하 |
 | `products/` | `products-list-users.js` | GET /api/products | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 목록 조회). 로컬·dev.imhungry.click 공통 |
 | `products/` | `product-detail-users.js` | 상품 상세(비로그인) 요청 3건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 상품 상세 진입). dev.imhungry.click에서 확인 |
