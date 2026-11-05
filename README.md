@@ -160,6 +160,7 @@ k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)�
 | --- | --- | --- |
 | GET /api/products (가상 사용자(VU) 1,000명) | [baseline.md](reports/dev/products/baseline.md) | 약 900명(초당 430건)까지 p50 21–28ms, 1,000명에서 p50 80–90ms·p95 최대 820ms로 증가. 실패 0% |
 | 상품 상세 진입, 비로그인 (가상 사용자(VU) 1,000명) | [detail-baseline.md](reports/dev/products/detail-baseline.md) | 약 500명(초당 700건)까지 p95 20–34ms. 약 740명부터 초당 요청이 1,000–1,060건에서 멈추고 1,000명에서 p95 1.2–1.3초. 실패 0% |
+| 검색 결과 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [search-page-baseline.md](reports/dev/search/search-page-baseline.md) | 약 600명에서 p95 2초 초과로 자동 중단. 약 230명부터 초당 요청이 530–570건에서 멈춤. 검색 세 요청(자동완성, 레시피·상품 검색)이 먼저 길어짐. 실패 10건(0.02%) |
 | 메인 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [baseline.md](reports/dev/main/baseline.md) | 약 880명에서 p95 2초 초과로 자동 중단. 약 360명부터 초당 요청이 700–800건에서 멈춤. API별로는 지금 뜨는 할인이 가장 느림(시작부터 쌓인 p95가 130초에 2.8초, 나머지 네 요청은 0.5초). 502 17건(0.02%) |
 
 <sub>보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
@@ -264,6 +265,7 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `products/` | `product-detail-users.js` | 상품 상세(비로그인) 요청 3건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 상품 상세 진입). dev.imhungry.click에서 확인 |
 | `main/` | `main-page-users.js` | 메인 화면(비로그인) 요청 5건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 메인 화면 진입). dev.imhungry.click에서 확인 |
 | `search/` | `search.js` | GET /api/search/recipes, /api/search/products | 읽기 공통 부하. `-e TARGET=recipes`, `products` |
+| `search/` | `search-page-users.js` | 검색 결과 화면(비로그인) 요청 6건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 검색 결과 화면 진입). dev.imhungry.click에서 확인 |
 | `sales-popular/` | `sales-popular.js` | GET /api/sales/popular | 읽기 공통 부하. 시드 `seed-search-clicks.sql`(검색 클릭 10만 건) |
 | `cart-read/` | `cart-read.js` | GET /api/cart-items | 읽기 공통 부하. 회원 로그인·장바구니 준비는 시작 전에 함 |
 | `cart-add/` | `cart-add-accuracy.js`, `cart-add-burst.js` | POST /api/cart-items | 정확성: 같은 회원이 같은 상품을 동시에 담아 DB 수량 확인. 속도: (회원, 상품) 조합을 한 번씩 담으며 초당 요청 수 단계 상승. 확인 `cart-add-verify.sql`, 되돌리기 `cart-add-reset.sql` |
