@@ -4,8 +4,8 @@
 
 - 환경: `https://dev.imhungry.click`. k6는 집 회선에서 인터넷을 거쳐 보냈으므로 응답 시간에 그 왕복 시간이 들어 있습니다.
 - 근거 자료
-  - 스크립트: [`scenarios/main/main-page-users.js`](../../../scenarios/main/main-page-users.js)
-  - k6 결과 화면: [`main-page-users-20261105-145927.html`](main-page-users-20261105-145927.html) (내려받아 브라우저로 엽니다)
+  - 스크립트: [`scenarios/main/main-page.js`](../../../scenarios/main/main-page.js)
+  - k6 결과 화면: [`main-page-20261105-145927.html`](main-page-20261105-145927.html) (내려받아 브라우저로 엽니다)
   - 10초 단위 표: [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다
   - API별 p95: 측정 중에 k6를 실행한 컴퓨터의 로컬 Prometheus로 보낸 요청별 값에서 뽑았습니다
 - 미정 항목: 합격선, 측정한 앱 커밋 해시.
@@ -43,8 +43,8 @@
 ## 4. 실행 방법
 
 ```bash
-BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/main/main-page-users.js
-python3 tools/timeline.py results/dev/main-page-users-<시각>.html
+BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/main/main-page.js
+python3 tools/timeline.py results/dev/main-page-<시각>.html
 ```
 
 ## 5. 결과

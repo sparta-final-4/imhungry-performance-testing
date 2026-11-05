@@ -4,8 +4,8 @@
 
 - 환경: `https://dev.imhungry.click`, 앱 서버 t4g.small 1대. k6는 집 회선에서 인터넷을 거쳐 보냈으므로 응답 시간에 그 왕복 시간이 들어 있습니다. 로컬 보고서([../../local/products/baseline.md](../../local/products/baseline.md))와 숫자를 섞지 않습니다.
 - 근거 자료
-  - 스크립트: [`scenarios/products/products-list-users.js`](../../../scenarios/products/products-list-users.js)
-  - k6 결과 화면: [`products-list-users-20261105-110416.html`](products-list-users-20261105-110416.html) (내려받아 브라우저로 엽니다)
+  - 스크립트: [`scenarios/products/products-list.js`](../../../scenarios/products/products-list.js)
+  - k6 결과 화면: [`products-list-20261105-110416.html`](products-list-20261105-110416.html) (내려받아 브라우저로 엽니다)
   - 10초 단위 표: [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다
 - 미정 항목: 합격선, 측정한 앱 커밋 해시.
 
@@ -34,8 +34,8 @@
 ## 4. 실행 방법
 
 ```bash
-BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list-users.js
-python3 tools/timeline.py results/dev/products-list-users-<시각>.html
+BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list.js
+python3 tools/timeline.py results/dev/products-list-<시각>.html
 ```
 
 ## 5. 결과

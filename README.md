@@ -261,13 +261,13 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `recipes-popular/` | `recipes-popular.js` | GET /api/recipes/popular | 20명 동시. 캐시 없이는 `run-no-cache.sh`. 시드 `seed-cooking-logs.sql`(요리 기록 10만 건, 후기 5천 건) |
 | `recipe-classifications/` | `recipe-classifications.js` | GET /api/recipes/classifications | 캐시 없이는 `run-no-cache.sh` |
 | `recipes/` | `recipes.js` | GET /api/recipes, /api/recipes/{id} | 읽기 공통 부하 |
-| `recipes/` | `recipe-detail-users.js` | 레시피 상세(비로그인) 요청 5건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 레시피 상세 진입). dev.imhungry.click에서 확인 |
+| `recipes/` | `recipe-detail.js` | 레시피 상세(비로그인) 요청 5건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 레시피 상세 진입). dev.imhungry.click에서 확인 |
 | `products/` | `products.js` | GET /api/products, /api/products/{id} | 읽기 공통 부하 |
-| `products/` | `products-list-users.js` | GET /api/products | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 목록 조회). 로컬·dev.imhungry.click 공통 |
-| `products/` | `product-detail-users.js` | 상품 상세(비로그인) 요청 3건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 상품 상세 진입). dev.imhungry.click에서 확인 |
-| `main/` | `main-page-users.js` | 메인 화면(비로그인) 요청 5건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 메인 화면 진입). dev.imhungry.click에서 확인 |
+| `products/` | `products-list.js` | GET /api/products | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 목록 조회). 로컬·dev.imhungry.click 공통 |
+| `products/` | `product-detail.js` | 상품 상세(비로그인) 요청 3건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 상품 상세 진입). dev.imhungry.click에서 확인 |
+| `main/` | `main-page.js` | 메인 화면(비로그인) 요청 5건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 메인 화면 진입). dev.imhungry.click에서 확인 |
 | `search/` | `search.js` | GET /api/search/recipes, /api/search/products | 읽기 공통 부하. `-e TARGET=recipes`, `products` |
-| `search/` | `search-page-users.js` | 검색 결과 화면(비로그인) 요청 6건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 검색 결과 화면 진입). dev.imhungry.click에서 확인 |
+| `search/` | `search-page.js` | 검색 결과 화면(비로그인) 요청 6건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 검색 결과 화면 진입). dev.imhungry.click에서 확인 |
 | `sales-popular/` | `sales-popular.js` | GET /api/sales/popular | 읽기 공통 부하. 시드 `seed-search-clicks.sql`(검색 클릭 10만 건) |
 | `cart-read/` | `cart-read.js` | GET /api/cart-items | 읽기 공통 부하. 회원 로그인·장바구니 준비는 시작 전에 함 |
 | `cart-add/` | `cart-add-accuracy.js`, `cart-add-burst.js` | POST /api/cart-items | 정확성: 같은 회원이 같은 상품을 동시에 담아 DB 수량 확인. 속도: (회원, 상품) 조합을 한 번씩 담으며 초당 요청 수 단계 상승. 확인 `cart-add-verify.sql`, 되돌리기 `cart-add-reset.sql` |
@@ -342,10 +342,10 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 ### 6-5. dev.imhungry.click에서 돌리기
 
 ```bash
-BASE_URL=https://dev.imhungry.click ./tools/run.sh -e SMOKE=1 scenarios/products/products-list-users.js   # 먼저 가볍게
-BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list-users.js
-python3 tools/timeline.py results/dev/products-list-users-<시각>.html
-python3 tools/share-html.py results/dev/products-list-users-<시각>.html reports/dev/products/   # 보고서 옆에 올릴 사본(로컬 경로 지움)
+BASE_URL=https://dev.imhungry.click ./tools/run.sh -e SMOKE=1 scenarios/products/products-list.js   # 먼저 가볍게
+BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list.js
+python3 tools/timeline.py results/dev/products-list-<시각>.html
+python3 tools/share-html.py results/dev/products-list-<시각>.html reports/dev/products/   # 보고서 옆에 올릴 사본(로컬 경로 지움)
 ```
 
 - dev.imhungry.click은 팀 공용입니다. 돌리기 전에 팀 채널에 알리고, 팀원이 적게 쓰는 시간에 03시 정지 전에 끝냅니다.

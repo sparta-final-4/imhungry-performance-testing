@@ -2,8 +2,8 @@
 //   가상 사용자 1명이 목록 한 페이지를 보고 1–3초 쉰 뒤 다시 보는 것을 반복한다(가상 사용자 수 고정 방식).
 //   단계: 0 → 100명(30초) → 500명(60초) → 1,000명(60초) → 1,000명 유지(120초) → 0명(30초). 약 5분.
 //   중단: 실패율 5% 초과 또는 p95 2초 초과가 30초 뒤부터 이어지면 멈춘다.
-// 실행: ./tools/run.sh scenarios/products/products-list-users.js                       (로컬)
-//       BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list-users.js   (dev, 결과는 results/dev/)
+// 실행: ./tools/run.sh scenarios/products/products-list.js                       (로컬)
+//       BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list.js   (dev, 결과는 results/dev/)
 //   스모크: -e SMOKE=1 (10명, 30초)
 import http from 'k6/http';
 import { check, sleep } from 'k6';

@@ -4,7 +4,7 @@
 k6 콘솔 요약은 전체 구간을 합친 값이라, 부하를 올리다 어디서 꺾였는지가 묻힌다.
 HTML 보고서 안에 들어 있는 10초 단위 기록을 꺼내 마크다운 표로 보여 준다.
 
-    python3 tools/timeline.py results/dev/products-list-users-20261105-110416.html
+    python3 tools/timeline.py results/dev/products-list-20261105-110416.html
 
 열: 경과(초), 가상 사용자, 초당 요청, 실패율, 응답 시간 p50·p95·p99·최대(ms).
 """
