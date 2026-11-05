@@ -3,7 +3,7 @@
 상태: 초안 · 측정 시각: 2026-11-05 17:10:19–17:12:28
 
 - 환경: `https://dev.imhungry.click`. k6는 집 회선에서 인터넷을 거쳐 보냈으므로 응답 시간에 그 왕복 시간이 들어 있습니다.
-- 근거 자료: 스크립트 [`scenarios/recipes/recipe-detail-users.js`](../../../scenarios/recipes/recipe-detail-users.js), 시간대별 표는 [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다. API별 p95는 k6가 측정 중에 보낸 지표(Prometheus)에서 뽑았습니다. 원본 결과 파일은 저장소에 두지 않습니다.
+- 근거 자료: 스크립트 [`scenarios/recipes/recipe-detail-users.js`](../../../scenarios/recipes/recipe-detail-users.js), 시간대별 표는 [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다. API별 p95는 k6가 측정 중에 보낸 지표(Prometheus)에서 뽑았습니다. k6 결과 화면은 [`recipe-detail-users-20261105-171019.html`](recipe-detail-users-20261105-171019.html)입니다(내려받아 브라우저로 엽니다).
 - 미정 항목: 합격선, 측정한 앱 커밋 해시.
 
 ## 1. 대상

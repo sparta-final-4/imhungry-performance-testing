@@ -171,7 +171,7 @@ k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)�
 ```
 .
 ├── env/          환경 올리기: up.sh, down.sh, recover-server.sh, create-server.sh, Dockerfile
-├── tools/        실행 도구: run.sh, summarize.py, timeline.py (로컬 전용: run-no-cache.sh, run-stateful.sh, run-flash-drop.sh)
+├── tools/        실행 도구: run.sh, summarize.py, timeline.py, share-html.py (로컬 전용: run-no-cache.sh, run-stateful.sh, run-flash-drop.sh)
 ├── lib/          모든 시나리오가 같이 쓰는 k6 공용 함수(auth, read, prepare, order-setup)
 ├── scenarios/    테스트할 API별 폴더(스크립트, 시드·확인 SQL)
 ├── monitoring/   Prometheus, Grafana, Loki, Tempo, Alloy 설정과 대시보드
@@ -345,6 +345,7 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 BASE_URL=https://dev.imhungry.click ./tools/run.sh -e SMOKE=1 scenarios/products/products-list-users.js   # 먼저 가볍게
 BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list-users.js
 python3 tools/timeline.py results/dev/products-list-users-<시각>.html
+python3 tools/share-html.py results/dev/products-list-users-<시각>.html reports/dev/products/   # 보고서 옆에 올릴 사본(로컬 경로 지움)
 ```
 
 - dev.imhungry.click은 팀 공용입니다. 돌리기 전에 팀 채널에 알리고, 팀원이 적게 쓰는 시간에 03시 정지 전에 끝냅니다.

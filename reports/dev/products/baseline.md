@@ -3,7 +3,7 @@
 상태: 초안 · 측정일: 2026-11-05 11:04–11:09 · 도메인 담당자: 강준모
 
 - 환경: `https://dev.imhungry.click`, 앱 서버 t4g.small 1대. k6는 집 회선에서 인터넷을 거쳐 보냈으므로 응답 시간에 그 왕복 시간이 들어 있습니다. 로컬 보고서([../../local/products/baseline.md](../../local/products/baseline.md))와 숫자를 섞지 않습니다.
-- 근거 자료: 스크립트 [`scenarios/products/products-list-users.js`](../../../scenarios/products/products-list-users.js), 시간대별 표는 [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다. 원본 결과 파일은 저장소에 두지 않습니다.
+- 근거 자료: 스크립트 [`scenarios/products/products-list-users.js`](../../../scenarios/products/products-list-users.js), 시간대별 표는 [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다. k6 결과 화면은 [`products-list-users-20261105-110416.html`](products-list-users-20261105-110416.html)입니다(내려받아 브라우저로 엽니다).
 - 미정 항목: 합격선, 측정한 앱 커밋 해시.
 
 ## 1. 대상
