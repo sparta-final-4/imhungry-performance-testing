@@ -181,7 +181,7 @@ def main():
     print("| 지표 | " + " | ".join(names) + " |\n|---|" + "---|" * len(names))
     labels = [("rate", "앱 처리 속도 평균(건/초)", 0), ("p95", "앱 p95(ms, 구간 최대)", 0), ("p99", "앱 p99(ms, 구간 최대)", 0),
               ("pool", "커넥션 풀 사용 중(최대 10)", 0), ("pending", "커넥션 풀 기다리는 요청", 0), ("mysql", "MySQL 실행 중 스레드", 0),
-              ("qpr", "요청 1건당 쿼리", 1), ("cpu", "앱 프로세스 CPU(%)", 1), ("gc", "GC 멈춤(시간 중 %)", 1), ("heap", "힙 사용(MB)", 0)]
+              ("qpr", "요청 1건당 쿼리", 1), ("cpu", "앱 프로세스 CPU(%, 호스트 10개 기준, 한도 20%)", 1), ("gc", "GC 멈춤(시간 중 %)", 1), ("heap", "힙 사용(MB)", 0)]
     for key, label, digits in labels:
         cells = []
         for n in names:
