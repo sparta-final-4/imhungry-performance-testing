@@ -4,7 +4,7 @@
 
 - 환경: dev(`https://dev.imhungry.click`), 앱 서버 t4g.small 1대. k6는 집 회선에서 인터넷을 거쳐 보냈으므로 응답 시간에 그 왕복 시간이 들어 있습니다. 로컬 보고서([../../local/products/baseline.md](../../local/products/baseline.md))와 숫자를 섞지 않습니다.
 - 근거 자료: 스크립트 [`scenarios/products/products-list-users.js`](../../../scenarios/products/products-list-users.js), 시간대별 표는 [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다. 원본 결과 파일은 저장소에 두지 않습니다.
-- 미정 항목: 합격선, 측정 시각의 앱 서버 CPU 사용률과 CPU 크레딧 잔액(미측정), 측정한 앱 커밋 해시.
+- 미정 항목: 합격선, 측정한 앱 커밋 해시.
 
 ## 1. 대상
 
@@ -50,7 +50,6 @@ python3 tools/timeline.py results/dev/products-list-users-<시각>.html
 - 가상 사용자 약 900명(초당 약 430건)까지는 p50이 21–28ms로 거의 변하지 않았습니다.
 - 1,000명에 닿은 뒤 p50이 80–90ms대로 올랐고 p95가 159–820ms 사이에서 출렁였습니다. 초당 요청은 이론값(약 476건) 근처까지 따라갔습니다.
 - 내리는 구간에서 바로 20ms대로 돌아왔습니다.
-- 이 차이가 서버 CPU, CPU 크레딧, 커넥션 풀, 집 회선 중 어디에서 생겼는지는 CPU 값이 없어 확인하지 못했습니다.
 
 <details><summary>10초 단위 전체 표</summary>
 
