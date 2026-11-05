@@ -30,21 +30,29 @@ def main():
     if len(sys.argv) != 2:
         raise SystemExit("사용: python3 tools/timeline.py <k6 HTML 보고서>")
     events = load_events(sys.argv[1])
-    # 기록(snapshot)의 값 순서는 지표 이름을 정렬한 순서다.
-    names = sorted({k for e in events if e["event"] == "metric" for k in e["data"]})
-    col = names.index
-    snaps = [e["data"] for e in events if e["event"] == "snapshot"]
+    # 기록(snapshot)의 값 순서는 그 기록까지 나온 지표 이름을 정렬한 순서다.
+    # 준비 단계(setup)가 길면 중간에 새 지표가 생겨 순서가 바뀌므로 기록마다 다시 계산한다.
+    seen, snaps = set(), []
+    for e in events:
+        if e["event"] == "metric":
+            seen.update(e["data"])
+        elif e["event"] == "snapshot":
+            names = sorted(seen)
+            row = {n: e["data"][i] for i, n in enumerate(names) if i < len(e["data"])}
+            # 요청 기록이 없는 기록(준비 단계 등)은 건너뛴다.
+            if row.get("time") and row.get("vus") and row.get("http_req_duration"):
+                snaps.append(row)
     if not snaps:
         raise SystemExit("시간대별 기록이 없습니다.")
-    t0 = snaps[0][col("time")][0]
+    t0 = snaps[0]["time"][0]
     print("| 경과(초) | 가상 사용자 | 초당 요청 | 실패율 | p50 | p95 | p99 | 최대 |")
     print("|---|---|---|---|---|---|---|---|")
     for s in snaps:
-        dur = dict(zip(TREND, s[col("http_req_duration")]))
-        reqs = s[col("http_reqs")]
-        failed = s[col("http_req_failed")][0] if "http_req_failed" in names else 0
-        elapsed = (s[col("time")][0] - t0) / 1000 + 10  # 기록은 10초 구간이 끝날 때 남는다
-        print(f"| {elapsed:.0f} | {s[col('vus')][0]:.0f} | {reqs[1]:.0f} | {failed * 100:.2f}% "
+        dur = dict(zip(TREND, s["http_req_duration"]))
+        reqs = s["http_reqs"]
+        failed = s["http_req_failed"][0] if s.get("http_req_failed") else 0
+        elapsed = (s["time"][0] - t0) / 1000 + 10  # 기록은 10초 구간이 끝날 때 남는다
+        print(f"| {elapsed:.0f} | {s['vus'][0]:.0f} | {reqs[1]:.0f} | {failed * 100:.2f}% "
               f"| {dur['med']:.0f}ms | {dur['p(95)']:.0f}ms | {dur['p(99)']:.0f}ms | {dur['max']:,.0f}ms |")
 
 

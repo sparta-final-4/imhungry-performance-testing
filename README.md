@@ -165,6 +165,9 @@ k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)�
 | GET /api/recipes/popular (담당자 조건, 동시 사용자 20명) | [baseline.md](reports/dev/recipes-popular/baseline.md) | 합격선(p95 500ms 미만) 통과. p95 20.86ms, 실패 0%. 캐시 적중 경로 |
 | GET /api/recipes/popular (가상 사용자(VU) 1,000명) | [ramp-baseline.md](reports/dev/recipes-popular/ramp-baseline.md) | 1,000명까지 p50 11–13ms 유지, 초당 약 500건을 따라감. 실패 0%. 캐시 적중 경로 |
 | 메인 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표), 지금 뜨는 할인 캐시 전후 | [baseline.md](reports/dev/main/baseline.md) | 개선 전: 약 880명에서 자동 중단, 초당 700–800건에서 멈춤, 지금 뜨는 할인이 가장 느림(시작부터 쌓인 p95가 130초에 2.8초). 개선 후: 초당 1,600건까지 늘고 지금 뜨는 할인은 130초에 120ms. 약 820명부터 다섯 요청이 함께 무너져 2분 48초에 자동 중단, 실패 107건(0.09%) |
+| 장바구니 화면 진입, 로그인 (가상 사용자(VU) 1,000명 목표) | [cart-page-baseline.md](reports/dev/cart-read/cart-page-baseline.md) | 1,000명에 닿은 직후 p95 2초 초과로 자동 중단. 약 390명부터 초당 요청이 331–356건에서 멈춤. 실패 0% |
+| 장바구니 담기·빼기, 로그인 (가상 사용자(VU) 1,000명 목표) | [ramp-baseline.md](reports/dev/cart-add/ramp-baseline.md) | 약 810명에서 자동 중단. 약 250명부터 초당 요청이 285–335건에서 멈추고 네 요청이 함께 길어짐. 실패 0% |
+| 주문하고 나가기, 로그인 (가상 사용자(VU) 1,000명 목표) | [ramp-baseline.md](reports/dev/orders/ramp-baseline.md) | 약 490명에서 자동 중단. 약 120명부터 초당 요청이 202–209건에서 멈추고 다섯 요청이 함께 길어짐. 실패 0%. 중단 때 남은 결제 대기 주문 164건은 5분 뒤 만료 처리로 정리됨 |
 
 <sub>보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
 
@@ -273,6 +276,10 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `search/` | `search-page.js` | 검색 결과 화면(비로그인) 요청 6건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 검색 결과 화면 진입). dev.imhungry.click에서 확인 |
 | `sales-popular/` | `sales-popular.js` | GET /api/sales/popular | 읽기 공통 부하. 시드 `seed-search-clicks.sql`(검색 클릭 10만 건) |
 | `cart-read/` | `cart-read.js` | GET /api/cart-items | 읽기 공통 부하. 회원 로그인·장바구니 준비는 시작 전에 함 |
+| `cart-read/` | `cart-page.js` | 장바구니 화면(로그인) 요청 2건 | 가상 사용자 수 고정 방식(가상 사용자 1명이 테스트 회원 1명을 맡아 1–3초 간격으로 장바구니 화면 진입). dev.imhungry.click에서 확인 |
+| `cart-add/` | `cart-add-ramp.js` | 담기 → 장바구니 화면 → 선택 삭제 요청 4건 | 가상 사용자 수 고정 방식. 매번 빼므로 장바구니가 커지지 않음. dev.imhungry.click에서 확인 |
+| `orders/` | `order-ramp.js` | 장바구니 화면 → 주문하기 → 주문 확인 화면 → 나가기 요청 5건 | 가상 사용자 수 고정 방식. 나가기가 주문을 지우고 재고를 되돌림. 테스트 상품(`-e PRODUCT_IDS`, 기본 29,30)을 씀. dev.imhungry.click에서 확인 |
+| `dev-prep/` | `members.js`, `test-product.js` | 테스트 회원 가입, 테스트 상품 등록 | dev.imhungry.click 준비용. 회원 `loadtest-N@example.com`을 PREPARE_BATCH명씩 가입. 상품 등록은 관리자 비밀번호를 환경변수로 받음 |
 | `cart-add/` | `cart-add-accuracy.js`, `cart-add-burst.js` | POST /api/cart-items | 정확성: 같은 회원이 같은 상품을 동시에 담아 DB 수량 확인. 속도: (회원, 상품) 조합을 한 번씩 담으며 초당 요청 수 단계 상승. 확인 `cart-add-verify.sql`, 되돌리기 `cart-add-reset.sql` |
 | `orders/` | `orders-accuracy.js` | POST /api/orders | 번개 드롭 재고 동시 주문 정확성(회원 100명이 같은 순간 한 번씩). 확인 `orders-accuracy-verify.sql`, 되돌리기 `orders-accuracy-reset.sql` |
 | `flash-drop/` | `flash-drop-create.js` | POST /api/admin/sale-events/flash-drop | 등록 1건이 만드는 알림. `tools/run-flash-drop.sh`가 등록 응답 시간과 알림 저장 시간·개수를 DB로 확인. 회원 늘리기 `flash-drop-seed-members.sql`, 되돌리기 `flash-drop-reset.sql`, 정리 `flash-drop-clean-members.sql` |
@@ -352,7 +359,8 @@ python3 tools/share-html.py results/dev/products-list-<시각>.html reports/dev/
 ```
 
 - dev.imhungry.click은 팀 공용입니다. 돌리기 전에 팀 채널에 알리고, 팀원이 적게 쓰는 시간에 03시 정지 전에 끝냅니다.
-- 처음에는 로그인이 필요 없는 읽기 시나리오만 돌립니다. 상태를 바꾸는 시나리오(주문, 담기)와 번개 드롭 등록은 dev.imhungry.click DB에 데이터를 남기고, 번개 드롭은 dev.imhungry.click의 실제 회원에게 알림을 보내므로 팀과 정리 방법을 정한 뒤에 돌립니다.
+- 로그인이 필요한 시나리오(장바구니 화면, 담기, 주문)는 테스트 회원을 먼저 만듭니다(`BASE_URL=https://dev.imhungry.click k6 run -e MEMBERS=1000 scenarios/dev-prep/members.js`). 회원과 장바구니 항목, 로그인 세션이 dev.imhungry.click DB에 남으므로 측정 뒤 정리합니다.
+- 번개 드롭 등록은 dev.imhungry.click의 실제 회원에게 알림을 보내므로 돌리지 않습니다.
 - `tools/` 중 `run-no-cache.sh`, `run-stateful.sh`, `run-flash-drop.sh`와 `env/`는 로컬 전용입니다. dev.imhungry.click에서 쓰지 않습니다.
 - 측정 시각을 남깁니다(결과 파일 이름에 들어갑니다). 보고서는 k6 결과만으로 쓰고, 서버 쪽 확인이 필요하면 그 시각을 가지고 인프라 담당과 따로 이야기합니다.
 
