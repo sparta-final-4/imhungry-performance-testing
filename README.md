@@ -1,7 +1,7 @@
 # imhungry-performance-testing
 
 **냉장고를 부탁해** 서비스 API의 부하를 로컬에서 측정하는 저장소입니다.
-dev와 같은 서버 구성을 컨테이너로 만들고, 같은 시나리오를 개선 전과 후에 같은 조건으로 돌려 숫자로 비교합니다.
+dev.imhungry.click과 같은 서버 구성을 컨테이너로 만들고, 같은 시나리오를 개선 전과 후에 같은 조건으로 돌려 숫자로 비교합니다.
 
 <p>
   <img src="https://img.shields.io/badge/k6-v2-7D64FF?logo=k6&logoColor=white" alt="k6">
@@ -13,7 +13,7 @@ dev와 같은 서버 구성을 컨테이너로 만들고, 같은 시나리오를
 ## 한눈에 보기
 
 - **목표**: 개선 전과 후를 **같은 조건에서** 측정해 숫자로 비교
-- **환경**: 서버 4대(앱·데이터·검색·모니터링)를 컨테이너로 만들어 dev와 같은 메모리 제한으로 실행, `env/up.sh` 하나로 올림
+- **환경**: 서버 4대(앱·데이터·검색·모니터링)를 컨테이너로 만들어 dev.imhungry.click과 같은 메모리 제한으로 실행, `env/up.sh` 하나로 올림
 - **부하**: k6. 읽기 API는 초당 요청 수를 200 → 2,000건으로 올리고, 상태를 바꾸는 API는 DB 최종 상태로 정확성을 확인
 - **관측**: Prometheus·Grafana·Loki·Tempo. k6 결과는 Prometheus로 자동 전송
 - **기준**: 같은 조건으로 3번 돌려 가운데 값을 사용. 측정하지 않은 것은 "미측정"
@@ -32,7 +32,7 @@ dev와 같은 서버 구성을 컨테이너로 만들고, 같은 시나리오를
 
 ![성능 테스트 환경 구성도](docs/architecture.svg)
 
-서버 컨테이너 4개가 각각 dev의 서버 한 대(t4g.small, 2 CPU · 2GB)에 해당하고, 안쪽에서 Docker로 서비스를 띄웁니다. k6는 호스트에서 실행합니다.
+서버 컨테이너 4개가 각각 dev.imhungry.click의 서버 한 대(t4g.small, 2 CPU · 2GB)에 해당하고, 안쪽에서 Docker로 서비스를 띄웁니다. k6는 호스트에서 실행합니다.
 
 | 서버&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 안쪽 컨테이너와 메모리 제한 | 호스트에서 접속 |
 | --- | --- | --- |
@@ -41,15 +41,15 @@ dev와 같은 서버 구성을 컨테이너로 만들고, 같은 시나리오를
 | `search-server` | Elasticsearch 9.2 1400MB(힙 768MB, nori) | 열지 않음 |
 | `monitoring-server` | Prometheus, Grafana, Loki, Alloy, Tempo, exporter 4개 | `localhost:9090`, `localhost:3000` |
 
-<sub>서버 컨테이너는 모두 2 CPU, 메모리 2GB, 스왑 1GB입니다. dev에는 모니터링 서버가 없습니다.</sub>
+<sub>서버 컨테이너는 모두 2 CPU, 메모리 2GB, 스왑 1GB입니다. dev.imhungry.click에는 모니터링 서버가 없습니다.</sub>
 
 <details>
 <summary>서버 컨테이너 안에 컨테이너를 띄우는 이유</summary>
 
-dev는 서버 한 대(2 CPU · 2GB)를 그 위의 컨테이너들이 나눠 씁니다. 컨테이너별 CPU 제한은 없고 메모리 제한만 있습니다. 서버를 바깥 컨테이너(2 CPU · 2GB)로 만들고 그 안에서 컨테이너를 실행하면 이 구조가 그대로 재현됩니다.
+dev.imhungry.click은 서버 한 대(2 CPU · 2GB)를 그 위의 컨테이너들이 나눠 씁니다. 컨테이너별 CPU 제한은 없고 메모리 제한만 있습니다. 서버를 바깥 컨테이너(2 CPU · 2GB)로 만들고 그 안에서 컨테이너를 실행하면 이 구조가 그대로 재현됩니다.
 
-- **서버 단위로 CPU를 나눠 씁니다.** 데이터 서버에서 MySQL·Redis·Kafka가 2 CPU를 서로 경쟁하는 모습이 dev와 같게 나옵니다. 컨테이너를 한 단계만 쓰면 제한을 안 두었을 때는 호스트 코어 전체를 쓰고, 컨테이너마다 제한을 두면 서로 경쟁하지 않아서 이 모습을 만들 수 없습니다.
-- **서버 단위로 CPU 사용량을 볼 수 있습니다.** 다만 어느 서버에서 먼저 막히는지는 이 환경의 관찰이라 dev에서도 같다고 보지 않습니다.
+- **서버 단위로 CPU를 나눠 씁니다.** 데이터 서버에서 MySQL·Redis·Kafka가 2 CPU를 서로 경쟁하는 모습이 dev.imhungry.click과 같게 나옵니다. 컨테이너를 한 단계만 쓰면 제한을 안 두었을 때는 호스트 코어 전체를 쓰고, 컨테이너마다 제한을 두면 서로 경쟁하지 않아서 이 모습을 만들 수 없습니다.
+- **서버 단위로 CPU 사용량을 볼 수 있습니다.** 다만 어느 서버에서 먼저 막히는지는 이 환경의 관찰이라 dev.imhungry.click에서도 같다고 보지 않습니다.
 - **메모리도 서버 단위로 나눠 씁니다.** 서버 2GB 안에서 컨테이너별 제한(MySQL 600MB, Redis 200MB, Kafka 700MB 등)이 함께 적용됩니다.
 
 **알아 둘 점**
@@ -60,18 +60,18 @@ dev는 서버 한 대(2 CPU · 2GB)를 그 위의 컨테이너들이 나눠 씁�
 
 ## 2. 왜 이렇게 만들었나
 
-### 2-1. dev와 동일한 것과 다른 것
+### 2-1. dev.imhungry.click과 동일한 것과 다른 것
 
 - **동일**: 서버 3대 구성(앱, 데이터, 검색), 서버당 2 CPU · 2GB, 컨테이너별 메모리 제한과 JVM 힙(`-Xms768m -Xmx768m -XX:+UseG1GC`), 컨테이너별 CPU 제한 없음
-- **추가**: 모니터링 서버 1대(dev에는 없음)
-- **다름**: CPU 종류(dev는 ARM t4g), CPU 크레딧에 따른 버스트 제한(로컬에서는 재현하지 못함), 서버 사이 네트워크(로컬은 같은 컴퓨터)
+- **추가**: 모니터링 서버 1대(dev.imhungry.click에는 없음)
+- **다름**: CPU 종류(dev.imhungry.click은 ARM t4g), CPU 크레딧에 따른 버스트 제한(로컬에서는 재현하지 못함), 서버 사이 네트워크(로컬은 같은 컴퓨터)
 - **영향**: 서버 4대가 한 컴퓨터의 CPU를 나눠 써서, 다른 프로그램이 CPU를 쓰면 숫자가 흔들립니다
 
-이 차이 때문에 측정한 절대값은 dev 성능으로 그대로 쓰지 않습니다. **같은 조건의 개선 전후 비교와 요청 1건의 작업량**(요청당 SQL 문 수, 트랜잭션 수, 실행 계획)만 봅니다. 어느 서버에서 먼저 막히는지는 환경에 따라 달라 결론으로 쓰지 않습니다.
+이 차이 때문에 측정한 절대값은 dev.imhungry.click 성능으로 그대로 쓰지 않습니다. **같은 조건의 개선 전후 비교와 요청 1건의 작업량**(요청당 SQL 문 수, 트랜잭션 수, 실행 계획)만 봅니다. 어느 서버에서 먼저 막히는지는 환경에 따라 달라 결론으로 쓰지 않습니다.
 
 ### 2-2. 앱은 소스코드 저장소에 두고 측정용 변경만 얹습니다
 
-테스트하는 앱은 [소스코드 저장소 `take-care-of-my-fridge`](https://github.com/sparta-final-4/take-care-of-my-fridge)에 있습니다. 측정에는 메트릭 수집과 `loadtest` 프로필이 필요한데 dev에는 없는 변경이라, 이 저장소의 `app-patch/loadtest-app.patch`로 보관합니다. `env/up.sh`가 소스코드 저장소에서 체크아웃된 커밋을 임시 폴더에 꺼내 패치를 얹어 빌드하므로 소스코드 저장소의 작업 폴더는 건드리지 않습니다. 측정한 앱 커밋은 이미지 라벨에 남습니다.
+테스트하는 앱은 [소스코드 저장소 `take-care-of-my-fridge`](https://github.com/sparta-final-4/take-care-of-my-fridge)에 있습니다. 측정에는 메트릭 수집과 `loadtest` 프로필이 필요한데 소스코드 저장소의 dev 브랜치에는 없는 변경이라, 이 저장소의 `app-patch/loadtest-app.patch`로 보관합니다. `env/up.sh`가 소스코드 저장소에서 체크아웃된 커밋을 임시 폴더에 꺼내 패치를 얹어 빌드하므로 소스코드 저장소의 작업 폴더는 건드리지 않습니다. 측정한 앱 커밋은 이미지 라벨에 남습니다.
 
 ## 3. 측정 방식
 
@@ -128,7 +128,7 @@ DB_USER=<사용자> DB_PASSWORD=<비밀번호> ./tools/run-stateful.sh \
 
 ## 4. 결과
 
-API별 보고서는 [`reports/`](reports/README.md)에 환경별로 나눠 둡니다. 로컬은 `reports/local/`, dev는 `reports/dev/`이고, 그 아래 폴더 이름은 `scenarios/`와 같습니다. 환경이 다른 숫자는 섞지 않습니다.
+API별 보고서는 [`reports/`](reports/README.md)에 환경별로 나눠 둡니다. 로컬은 `reports/local/`, dev.imhungry.click은 `reports/dev/`이고, 그 아래 폴더 이름은 `scenarios/`와 같습니다. 환경이 다른 숫자는 섞지 않습니다.
 
 ### 4-1. 로컬
 
@@ -150,16 +150,17 @@ API별 보고서는 [`reports/`](reports/README.md)에 환경별로 나눠 둡�
 | POST /api/webhooks/portone (정확성) | [accuracy-baseline.md](reports/local/webhook/accuracy-baseline.md) | 같은 웹훅 동시 200건: 기록 id당 1건, 서명 오류 20건 모두 401·기록 0건 (결제와 매칭되지 않는 웹훅) |
 | POST /api/webhooks/portone (속도) | [burst-baseline.md](reports/local/webhook/burst-baseline.md) | 1,000건 단계 p95 22ms, 2,000건 단계 p95 1,230ms (결제와 매칭되지 않는 웹훅) |
 
-<sub>로컬에서 측정한 값이라 dev의 값과 다릅니다.</sub>
+<sub>로컬에서 측정한 값이라 dev.imhungry.click의 값과 다릅니다.</sub>
 
-### 4-2. dev
+### 4-2. dev.imhungry.click
 
-k6를 집 회선에서 보내 dev(`https://dev.imhungry.click`, 앱 t4g.small 1대)로 측정했습니다. 응답 시간에 인터넷 왕복 시간이 들어 있습니다.
+k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)으로 측정했습니다. 응답 시간에 인터넷 왕복 시간이 들어 있습니다.
 
 | API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 보고서 | 핵심 결과 |
 | --- | --- | --- |
-| GET /api/products (사용자 1,000명) | [baseline.md](reports/dev/products/baseline.md) | 약 900명(초당 430건)까지 p50 21–28ms, 1,000명에서 p50 80–90ms·p95 최대 820ms로 증가. 실패 0% |
-| 메인 화면 진입, 비로그인 (사용자 1,000명 목표) | [baseline.md](reports/dev/main/baseline.md) | 약 880명에서 p95 2초 초과로 자동 중단. 약 360명부터 초당 요청이 700–800건에서 멈춤. API별로는 인기 특가가 가장 느림(시작부터 쌓인 p95가 130초에 2.8초, 나머지 네 요청은 0.5초). 502 17건(0.02%) |
+| GET /api/products (가상 사용자(VU) 1,000명) | [baseline.md](reports/dev/products/baseline.md) | 약 900명(초당 430건)까지 p50 21–28ms, 1,000명에서 p50 80–90ms·p95 최대 820ms로 증가. 실패 0% |
+| 상품 상세 진입, 비로그인 (가상 사용자(VU) 1,000명) | [detail-baseline.md](reports/dev/products/detail-baseline.md) | 약 500명(초당 700건)까지 p95 20–34ms. 약 740명부터 초당 요청이 1,000–1,060건에서 멈추고 1,000명에서 p95 1.2–1.3초. 실패 0% |
+| 메인 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [baseline.md](reports/dev/main/baseline.md) | 약 880명에서 p95 2초 초과로 자동 중단. 약 360명부터 초당 요청이 700–800건에서 멈춤. API별로는 인기 특가가 가장 느림(시작부터 쌓인 p95가 130초에 2.8초, 나머지 네 요청은 0.5초). 502 17건(0.02%) |
 
 <sub>보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
 
@@ -200,7 +201,7 @@ k6를 집 회선에서 보내 dev(`https://dev.imhungry.click`, 앱 t4g.small 1�
   memory=<위 표의 필요 메모리 이상>
   processors=<위 표의 필요 CPU 개수 이상>
   ```
-- CPU 종류는 맥(arm64)과 인텔·AMD(x86_64) 모두 됩니다. 스크립트가 이 컴퓨터의 CPU를 따라 이미지를 만듭니다. dev는 arm64(t4g)라서 x86_64에서 측정한 숫자의 절대값은 다릅니다. 숫자는 컴퓨터마다 다르므로 같은 컴퓨터에서 측정한 전후 비교에만 씁니다.
+- CPU 종류는 맥(arm64)과 인텔·AMD(x86_64) 모두 됩니다. 스크립트가 이 컴퓨터의 CPU를 따라 이미지를 만듭니다. dev.imhungry.click은 arm64(t4g)라서 x86_64에서 측정한 숫자의 절대값은 다릅니다. 숫자는 컴퓨터마다 다르므로 같은 컴퓨터에서 측정한 전후 비교에만 씁니다.
 </details>
 
 ### 6-2. 환경 올리기
@@ -220,7 +221,7 @@ cd env
 
 1. Docker 자원을 확인하고 서버 기반 이미지(`env/Dockerfile`)와 앱 이미지(`fridge-be:loadtest`)를 없으면 빌드합니다. 앱 이미지는 소스코드 저장소에서 체크아웃된 커밋에 `app-patch/loadtest-app.patch`를 얹어 만들고, 그 커밋을 이미지 라벨에 남깁니다.
 2. 서버 컨테이너 4개를 만듭니다(`env/create-server.sh`).
-3. 서버별로 dev와 같은 메모리 제한으로 서비스를 띄웁니다. DB가 비어 있고 `DUMP_FILE`이 있으면 덤프와 시작 데이터 SQL을 넣습니다.
+3. 서버별로 dev.imhungry.click과 같은 메모리 제한으로 서비스를 띄웁니다. DB가 비어 있고 `DUMP_FILE`이 있으면 덤프와 시작 데이터 SQL을 넣습니다.
 4. 모니터링 화면을 호스트에 여는 중계 컨테이너 `mon-ports`를 띄웁니다.
 5. 점검: 앱 health, 앱 메모리 제한, JVM 힙, Prometheus 타깃, k6 설치(v2 이상), Grafana, DB 데이터. k6가 없으면 설치 방법을 알려 주고, 환경은 올린 채 점검 항목만 실패로 표시합니다.
 
@@ -246,7 +247,7 @@ cd env
 python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:60,2000:60 --uri /api/search/recipes --method GET
 ```
 
-- 옵션은 스크립트 이름 앞에 둡니다. 결과는 `results/local/<스크립트>-<시각>.html`(보고서), `.json`(요약 수치), `.txt`(터미널 출력)로 남습니다. dev에서 돌리면 `results/dev/`에 남습니다.
+- 옵션은 스크립트 이름 앞에 둡니다. 결과는 `results/local/<스크립트>-<시각>.html`(보고서), `.json`(요약 수치), `.txt`(터미널 출력)로 남습니다. dev.imhungry.click에서 돌리면 `results/dev/`에 남습니다.
 - 가상 사용자를 올리는 측정은 `python3 tools/timeline.py <보고서 HTML>`로 10초 단위 표를 뽑아 어디서 꺾였는지 봅니다. k6 요약은 전체 구간을 합친 값이라 꺾이는 지점이 묻힙니다.
 - 측정 전에 호스트 부하를 확인하고(`uptime`), 높으면 다른 프로그램을 닫습니다.
 
@@ -259,8 +260,9 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `recipe-classifications/` | `recipe-classifications.js` | GET /api/recipes/classifications | 캐시 없이는 `run-no-cache.sh` |
 | `recipes/` | `recipes.js` | GET /api/recipes, /api/recipes/{id} | 읽기 공통 부하 |
 | `products/` | `products.js` | GET /api/products, /api/products/{id} | 읽기 공통 부하 |
-| `products/` | `products-list-users.js` | GET /api/products | 사용자 수 고정 방식(1,000명이 1–3초 간격으로 목록 조회). 로컬·dev 공통 |
-| `main/` | `main-page-users.js` | 메인 화면(비로그인) 요청 5건 | 사용자 수 고정 방식(1,000명이 1–3초 간격으로 메인 화면 진입). dev에서 확인 |
+| `products/` | `products-list-users.js` | GET /api/products | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 목록 조회). 로컬·dev.imhungry.click 공통 |
+| `products/` | `product-detail-users.js` | 상품 상세(비로그인) 요청 3건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 상품 상세 진입). dev.imhungry.click에서 확인 |
+| `main/` | `main-page-users.js` | 메인 화면(비로그인) 요청 5건 | 가상 사용자 수 고정 방식(가상 사용자 1,000명이 1–3초 간격으로 메인 화면 진입). dev.imhungry.click에서 확인 |
 | `search/` | `search.js` | GET /api/search/recipes, /api/search/products | 읽기 공통 부하. `-e TARGET=recipes`, `products` |
 | `sales-popular/` | `sales-popular.js` | GET /api/sales/popular | 읽기 공통 부하. 시드 `seed-search-clicks.sql`(검색 클릭 10만 건) |
 | `cart-read/` | `cart-read.js` | GET /api/cart-items | 읽기 공통 부하. 회원 로그인·장바구니 준비는 시작 전에 함 |
@@ -283,7 +285,7 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 | `AUTH_COOKIE_SECURE` | `false` | 로컬 http에서 로그인 쿠키를 쓰기 위함 |
 | `OPENAI_API_KEY` | `dummy` | OpenAI는 측정 대상이 아님 |
 | `SEARCH_VECTOR_ENABLED`, `INGREDIENT_EMBEDDING_ENABLED`, `RECIPE_EMBEDDING_ENABLED`, `REVIEW_SUMMARY_ENABLED` | `false` | OpenAI를 부르는 기능을 끔. 검색은 벡터 없는 경로로 측정됨 |
-| `JAVA_TOOL_OPTIONS` | `-Xms768m -Xmx768m -XX:+UseG1GC` | dev 서버의 실제 JVM 설정. 주지 않으면 JVM이 보이는 메모리의 4분의 1까지 힙을 크게 잡아(예: 8GB가 보이면 2GB, 그보다 많으면 더 커짐) 2GB 컨테이너를 넘고, 부하가 높을 때 메모리 부족으로 앱이 강제 종료될 수 있음 |
+| `JAVA_TOOL_OPTIONS` | `-Xms768m -Xmx768m -XX:+UseG1GC` | dev.imhungry.click 서버의 실제 JVM 설정. 주지 않으면 JVM이 보이는 메모리의 4분의 1까지 힙을 크게 잡아(예: 8GB가 보이면 2GB, 그보다 많으면 더 커짐) 2GB 컨테이너를 넘고, 부하가 높을 때 메모리 부족으로 앱이 강제 종료될 수 있음 |
 | `TRACING_ENABLED`, `TRACING_SAMPLING` | 기본 꺼짐 | 추적은 CPU·메모리를 더 쓰므로 기준선 측정에서는 끄고, 원인을 팔 때만 `TRACING_ENABLED=true`, `TRACING_SAMPLING=1.0`으로 켬 |
 
 측정 결과를 기록할 때는 앱을 어떤 값으로 띄웠는지 함께 적습니다. 앱 환경변수는 `docker exec app-server docker exec app env`로 확인하고, 값을 바꿨다면 `docker exec app-server docker rm -f app` 뒤 `./up.sh`로 앱을 다시 띄웁니다.
@@ -333,7 +335,7 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 - **윈도우에서 `bad interpreter`, `\r` 오류**: 저장소를 윈도우 쪽(`/mnt/c`)에서 클론해서 줄바꿈이 깨진 경우입니다. WSL 안에서 다시 클론합니다.
 </details>
 
-### 6-5. dev에서 돌리기
+### 6-5. dev.imhungry.click에서 돌리기
 
 ```bash
 BASE_URL=https://dev.imhungry.click ./tools/run.sh -e SMOKE=1 scenarios/products/products-list-users.js   # 먼저 가볍게
@@ -341,9 +343,9 @@ BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-l
 python3 tools/timeline.py results/dev/products-list-users-<시각>.html
 ```
 
-- dev는 팀 공용입니다. 돌리기 전에 팀 채널에 알리고, 팀원이 적게 쓰는 시간에 03시 정지 전에 끝냅니다.
-- 처음에는 로그인이 필요 없는 읽기 시나리오만 돌립니다. 상태를 바꾸는 시나리오(주문, 담기)와 번개 드롭 등록은 dev DB에 데이터를 남기고, 번개 드롭은 dev의 실제 회원에게 알림을 보내므로 팀과 정리 방법을 정한 뒤에 돌립니다.
-- `tools/` 중 `run-no-cache.sh`, `run-stateful.sh`, `run-flash-drop.sh`와 `env/`는 로컬 전용입니다. dev에서 쓰지 않습니다.
+- dev.imhungry.click은 팀 공용입니다. 돌리기 전에 팀 채널에 알리고, 팀원이 적게 쓰는 시간에 03시 정지 전에 끝냅니다.
+- 처음에는 로그인이 필요 없는 읽기 시나리오만 돌립니다. 상태를 바꾸는 시나리오(주문, 담기)와 번개 드롭 등록은 dev.imhungry.click DB에 데이터를 남기고, 번개 드롭은 dev.imhungry.click의 실제 회원에게 알림을 보내므로 팀과 정리 방법을 정한 뒤에 돌립니다.
+- `tools/` 중 `run-no-cache.sh`, `run-stateful.sh`, `run-flash-drop.sh`와 `env/`는 로컬 전용입니다. dev.imhungry.click에서 쓰지 않습니다.
 - 측정 시각을 남깁니다(결과 파일 이름에 들어갑니다). 보고서는 k6 결과만으로 쓰고, 서버 쪽 확인이 필요하면 그 시각을 가지고 인프라 담당과 따로 이야기합니다.
 
 <details>
@@ -353,8 +355,8 @@ python3 tools/timeline.py results/dev/products-list-users-<시각>.html
 - 앱과 k6가 같은 컴퓨터의 Docker에서 돌아서, 측정 중에 다른 프로그램(IDE 색인, 빌드, 브라우저, macOS 백그라운드 작업)이 CPU를 쓰면 숫자가 크게 흔들립니다. 읽기 시나리오(`run.sh`)에는 호스트 부하 확인이 없으니 측정 전에 `uptime`으로 보세요.
 - `results/`에는 로그인 쿠키(`setup_data`)가 들어간 JSON이 쌓입니다. `.gitignore`에 넣어 두었고, 결과 파일을 공유할 때는 `setup_data`를 지운 뒤 보냅니다.
 - 로그인 쿠키는 15분 뒤 만료됩니다. 시작 단계(회원 준비)와 측정 시간의 합이 그 안에 들어야 합니다.
-- 되돌리기·시드 SQL은 로컬 전용입니다. dev·main에서 실행하지 않습니다.
-- dev에서 돌릴 때는 로컬 모니터링이 없으므로 k6 결과 파일만으로 봅니다. 주문 시나리오는 공용 DB의 주문·재고를 바꾸므로 팀과 합의한 뒤에만 돌립니다.
+- 되돌리기·시드 SQL은 로컬 전용입니다. dev.imhungry.click·imhungry.click에서 실행하지 않습니다.
+- dev.imhungry.click에서 돌릴 때는 로컬 모니터링이 없으므로 k6 결과 파일만으로 봅니다. 주문 시나리오는 공용 DB의 주문·재고를 바꾸므로 팀과 합의한 뒤에만 돌립니다.
 
 **AI에게 시킬 때**: 이 문서를 주고 "시작하기를 실행하고 점검이 모두 OK인지 알려 줘"라고 하면 됩니다. AI는 아래를 지킵니다.
 - 환경을 직접 `docker run`으로 만들지 말고 `env/up.sh`를 씁니다. 점검이 모두 `OK`가 아니면 측정을 시작하지 않습니다.
