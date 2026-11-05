@@ -164,7 +164,7 @@ k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)�
 | 레시피 상세 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [detail-baseline.md](reports/dev/recipes/detail-baseline.md) | 약 810명에서 p95 2초 초과로 자동 중단. 약 430명부터 초당 요청이 810–865건에서 멈춤. 실패 0% |
 | GET /api/recipes/popular (담당자 조건, 동시 사용자 20명) | [baseline.md](reports/dev/recipes-popular/baseline.md) | 합격선(p95 500ms 미만) 통과. p95 20.86ms, 실패 0%. 캐시 적중 경로 |
 | GET /api/recipes/popular (가상 사용자(VU) 1,000명) | [ramp-baseline.md](reports/dev/recipes-popular/ramp-baseline.md) | 1,000명까지 p50 11–13ms 유지, 초당 약 500건을 따라감. 실패 0%. 캐시 적중 경로 |
-| 메인 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [baseline.md](reports/dev/main/baseline.md) | 약 880명에서 p95 2초 초과로 자동 중단. 약 360명부터 초당 요청이 700–800건에서 멈춤. API별로는 지금 뜨는 할인이 가장 느림(시작부터 쌓인 p95가 130초에 2.8초, 나머지 네 요청은 0.5초). 502 17건(0.02%) |
+| 메인 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표), 지금 뜨는 할인 캐시 전후 | [baseline.md](reports/dev/main/baseline.md) | 개선 전: 약 880명에서 자동 중단, 초당 700–800건에서 멈춤, 지금 뜨는 할인이 가장 느림(시작부터 쌓인 p95가 130초에 2.8초). 개선 후: 초당 1,600건까지 늘고 지금 뜨는 할인은 130초에 120ms. 약 820명부터 다섯 요청이 함께 무너져 2분 48초에 자동 중단, 실패 107건(0.09%) |
 
 <sub>보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
 
