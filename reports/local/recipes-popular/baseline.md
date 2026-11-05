@@ -2,7 +2,13 @@
 
 상태: 초안 · 측정일: 2026-11-04 · 도메인 담당자: 이현정 · 캐시 없음이 개선 전 기준선이고, 캐시 적용은 현재 소스코드에 이미 들어 있는 개선입니다.
 
-- 근거 자료: 스크립트 [`scenarios/recipes-popular/recipes-popular.js`](../../../scenarios/recipes-popular/recipes-popular.js), 환경과 실행 방법은 [README.md](../../../README.md), 표는 [`tools/summarize.py`](../../../tools/summarize.py)로 만들었습니다. 원본 결과 파일(HTML·JSON·텍스트)은 저장소에 두지 않습니다.
+- 근거 자료
+  - 스크립트: [`scenarios/recipes-popular/recipes-popular.js`](../../../scenarios/recipes-popular/recipes-popular.js)
+  - k6 결과 화면(내려받아 브라우저로 엽니다)
+    - 캐시 없음 1–3회: [`recipes-popular-20261104-222703.html`](recipes-popular-20261104-222703.html), [`recipes-popular-20261104-222934.html`](recipes-popular-20261104-222934.html), [`recipes-popular-20261104-223206.html`](recipes-popular-20261104-223206.html)
+    - 캐시 적용 1–3회: [`recipes-popular-20261104-223437.html`](recipes-popular-20261104-223437.html), [`recipes-popular-20261104-223708.html`](recipes-popular-20261104-223708.html), [`recipes-popular-20261104-223938.html`](recipes-popular-20261104-223938.html)
+  - 표: [`tools/summarize.py`](../../../tools/summarize.py)로 만들었습니다
+  - 환경과 실행 방법: [README.md](../../../README.md)
 - 미정 항목: 합격선과 목표 부하(후보 상태), 측정한 앱 커밋 해시와 이 저장소의 커밋 해시.
 
 ## 1. 대상과 선정 이유

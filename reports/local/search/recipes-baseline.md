@@ -2,7 +2,11 @@
 
 상태: 초안 · 측정일: 2026-11-04 · 도메인 담당자: 강준모
 
-- 근거 자료: 스크립트 [`scenarios/search/search.js`](../../../scenarios/search/search.js)(`TARGET=recipes`), 표는 [`tools/summarize.py`](../../../tools/summarize.py)로 만들었습니다. 환경과 실행 방법은 [README.md](../../../README.md)를 따릅니다. 원본 결과 파일은 저장소에 두지 않습니다.
+- 근거 자료
+  - 스크립트: [`scenarios/search/search.js`](../../../scenarios/search/search.js)(`TARGET=recipes`)
+  - k6 결과 화면(1–3회, 내려받아 브라우저로 엽니다): [`search-20261104-224209.html`](search-20261104-224209.html), [`search-20261104-224804.html`](search-20261104-224804.html), [`search-20261104-225400.html`](search-20261104-225400.html)
+  - 표: [`tools/summarize.py`](../../../tools/summarize.py)로 만들었습니다
+  - 환경과 실행 방법: [README.md](../../../README.md)
 - 미정 항목: 합격선과 목표 부하, 측정한 앱 커밋 해시와 이 저장소의 커밋 해시.
 
 ## 1. 대상

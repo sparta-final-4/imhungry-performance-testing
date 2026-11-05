@@ -2,7 +2,13 @@
 
 상태: 초안 · 측정일: 2026-11-05 · 도메인 담당자: 최용범
 
-- 근거 자료: 스크립트 [`scenarios/webhook/webhook-accuracy.js`](../../../scenarios/webhook/webhook-accuracy.js), 서명 [`lib/webhook.js`](../../../lib/webhook.js), DB 확인 [`webhook-verify.sql`](../../../scenarios/webhook/webhook-verify.sql), 되돌리기 [`webhook-reset.sql`](../../../scenarios/webhook/webhook-reset.sql). 환경과 실행 방법은 [README.md](../../../README.md)를 따릅니다. 원본 결과 파일은 저장소에 두지 않습니다.
+- 근거 자료
+  - 스크립트: [`scenarios/webhook/webhook-accuracy.js`](../../../scenarios/webhook/webhook-accuracy.js)
+  - k6 결과 화면: 만들지 않았습니다(이 측정은 DB 확인 결과로 판정합니다)
+  - 서명: [`lib/webhook.js`](../../../lib/webhook.js)
+  - DB 확인: [`webhook-verify.sql`](../../../scenarios/webhook/webhook-verify.sql)
+  - 되돌리기: [`webhook-reset.sql`](../../../scenarios/webhook/webhook-reset.sql)
+  - 환경과 실행 방법: [README.md](../../../README.md)
 - 미정 항목: 합격선, 측정한 앱 커밋 해시와 이 저장소의 커밋 해시.
 
 ## 1. 대상

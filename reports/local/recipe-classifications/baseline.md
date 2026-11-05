@@ -2,7 +2,13 @@
 
 상태: 초안 · 측정일: 2026-11-04 · 도메인 담당자: 강준모 · 캐시 없음이 개선 전 기준선이고, 캐시 적용은 현재 소스코드에 이미 들어 있는 개선입니다.
 
-- 근거 자료: 스크립트 [`scenarios/recipe-classifications/recipe-classifications.js`](../../../scenarios/recipe-classifications/recipe-classifications.js), 환경과 실행 방법은 [README.md](../../../README.md), 표는 [`tools/summarize.py`](../../../tools/summarize.py)로 만들었습니다. 원본 결과 파일은 저장소에 두지 않습니다.
+- 근거 자료
+  - 스크립트: [`scenarios/recipe-classifications/recipe-classifications.js`](../../../scenarios/recipe-classifications/recipe-classifications.js)
+  - k6 결과 화면(내려받아 브라우저로 엽니다)
+    - 캐시 없음 1–3회: [`recipe-classifications-20261104-231741.html`](recipe-classifications-20261104-231741.html), [`recipe-classifications-20261104-232337.html`](recipe-classifications-20261104-232337.html), [`recipe-classifications-20261104-232932.html`](recipe-classifications-20261104-232932.html)
+    - 캐시 적용 1–3회: [`recipe-classifications-20261104-233528.html`](recipe-classifications-20261104-233528.html), [`recipe-classifications-20261104-234123.html`](recipe-classifications-20261104-234123.html), [`recipe-classifications-20261104-234718.html`](recipe-classifications-20261104-234718.html)
+  - 표: [`tools/summarize.py`](../../../tools/summarize.py)로 만들었습니다
+  - 환경과 실행 방법: [README.md](../../../README.md)
 - 미정 항목: 합격선과 목표 부하, 측정한 앱 커밋 해시와 이 저장소의 커밋 해시.
 
 ## 1. 대상과 선정 이유

@@ -5,6 +5,10 @@
 - 기준선은 [burst-baseline.md](burst-baseline.md)이고 조건은 같습니다(회원 1,000명이 (회원, 상품) 조합을 한 번씩 담기, 초당 50 → 100 → 250 → 500건, 단계마다 15초).
 - 개선 전후 앱은 [accuracy-after-fix.md](accuracy-after-fix.md)와 같습니다(`dev` 최신 `a483c962`로 다시 빌드).
 - 회차마다 DB에서 항목 수가 성공(201) 응답 수와 같고 수량이 모두 1이며 중복이 없음을 확인했습니다(3회 모두 맞음).
+- 근거 자료
+  - 스크립트: [`scenarios/cart-add/cart-add-burst.js`](../../../scenarios/cart-add/cart-add-burst.js)
+  - k6 결과 화면(개선 후 1–3회, 내려받아 브라우저로 엽니다): [`cart-add-burst-20261105-023758.html`](cart-add-burst-20261105-023758.html), [`cart-add-burst-20261105-024038.html`](cart-add-burst-20261105-024038.html), [`cart-add-burst-20261105-024312.html`](cart-add-burst-20261105-024312.html)
+  - 개선 전 결과 화면: [burst-baseline.md](burst-baseline.md)에 있습니다
 - 미정 항목: 합격선, 이 저장소의 커밋 해시.
 
 ## 결과

@@ -2,7 +2,12 @@
 
 상태: 초안 · 측정일: 2026-11-05 · 도메인 담당자: 장준혁
 
-- 근거 자료: 스크립트 [`scenarios/orders/orders-accuracy.js`](../../../scenarios/orders/orders-accuracy.js), DB 확인 [`orders-accuracy-verify.sql`](../../../scenarios/orders/orders-accuracy-verify.sql), 되돌리기 [`orders-accuracy-reset.sql`](../../../scenarios/orders/orders-accuracy-reset.sql). 환경과 실행 방법은 [README.md](../../../README.md)를 따릅니다. 원본 결과 파일은 저장소에 두지 않습니다.
+- 근거 자료
+  - 스크립트: [`scenarios/orders/orders-accuracy.js`](../../../scenarios/orders/orders-accuracy.js)
+  - k6 결과 화면: 만들지 않았습니다(이 측정은 DB 확인 결과로 판정합니다)
+  - DB 확인: [`orders-accuracy-verify.sql`](../../../scenarios/orders/orders-accuracy-verify.sql)
+  - 되돌리기: [`orders-accuracy-reset.sql`](../../../scenarios/orders/orders-accuracy-reset.sql)
+  - 환경과 실행 방법: [README.md](../../../README.md)
 - 미정 항목: 합격선, 측정한 앱 커밋 해시와 이 저장소의 커밋 해시.
 
 ## 1. 대상
