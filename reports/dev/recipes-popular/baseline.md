@@ -7,7 +7,7 @@
   - 스크립트: [`scenarios/recipes-popular/recipes-popular.js`](../../../scenarios/recipes-popular/recipes-popular.js)
   - k6 결과 화면: [`recipes-popular-20261105-180650.html`](recipes-popular-20261105-180650.html) (내려받아 브라우저로 엽니다)
   - 10초 단위 표: [`tools/timeline.py`](../../../tools/timeline.py)로 만들었습니다
-- 같은 API를 가상 사용자(VU) 1,000명까지 올린 측정은 [ramp-baseline.md](ramp-baseline.md)에 있습니다.
+- 같은 API를 가상 사용자(VU) 1,000명까지 올린 측정은 [ramp-baseline.md](../../archive-1차/dev/recipes-popular/ramp-baseline.md)에 있습니다.
 - 미정 항목: 측정한 앱 커밋 해시. 합격선은 담당자가 정한 후보 값입니다.
 
 ## 1. 대상
@@ -21,7 +21,7 @@
 ## 2. 측정 조건
 
 - dev.imhungry.click의 데이터를 그대로 썼습니다.
-- 이 API는 Redis 캐시(24시간)가 걸려 있고, dev.imhungry.click은 공용 서버라 캐시를 비우지 않았습니다. 그래서 이 측정은 **캐시 적중 경로**만 측정한 값입니다. 캐시 없는 상태는 로컬 보고서([../../local/recipes-popular/baseline.md](../../local/recipes-popular/baseline.md))에 있습니다.
+- 이 API는 Redis 캐시(24시간)가 걸려 있고, dev.imhungry.click은 공용 서버라 캐시를 비우지 않았습니다. 그래서 이 측정은 **캐시 적중 경로**만 측정한 값입니다. 캐시 없는 상태는 로컬 보고서([baseline.md](../../archive-1차/local/recipes-popular/baseline.md))에 있습니다.
 - 부하 조건은 로컬 보고서와 같은 담당자 조건입니다.
 
 ## 3. 부하 조건

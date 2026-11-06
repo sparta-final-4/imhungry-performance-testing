@@ -24,9 +24,8 @@ dev.imhungry.click과 같은 서버 구성을 컨테이너로 만들고, 같은 
 1. [아키텍처](#1-아키텍처)
 2. [왜 이렇게 만들었나](#2-왜-이렇게-만들었나)
 3. [측정 방식](#3-측정-방식)
-4. [결과](#4-결과)
-5. [디렉터리 구조](#5-디렉터리-구조)
-6. [시작하기](#6-시작하기)
+4. [디렉터리 구조](#4-디렉터리-구조)
+5. [시작하기](#5-시작하기)
 
 ## 1. 아키텍처
 
@@ -126,52 +125,7 @@ DB_USER=<사용자> DB_PASSWORD=<비밀번호> ./tools/run-stateful.sh \
 - 결과 표는 `python3 tools/summarize.py --prefix <스크립트 이름> --last 3 --steps <단계> --uri <경로> --method <메서드>`로 만듭니다. 결과 파일 이름의 날짜-시각으로 `--since`, `--until`을 줘서 확인용 실행이 섞이지 않게 합니다. 서버 지표 구간은 앱이 요청을 받기 시작한 시각에서 추정하므로 경계에 ±10초 정도 오차가 있습니다.
 </details>
 
-## 4. 결과
-
-API별 보고서는 [`reports/`](reports/README.md)에 환경별로 나눠 둡니다. 로컬은 `reports/local/`, dev.imhungry.click은 `reports/dev/`이고, 그 아래 폴더 이름은 `scenarios/`와 같습니다. 환경이 다른 숫자는 섞지 않습니다.
-
-### 4-1. 로컬
-
-| API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 보고서 | 핵심 결과 |
-| --- | --- | --- |
-| GET /api/recipes/popular | [baseline.md](reports/local/recipes-popular/baseline.md) | 20명 동시 p95 중앙값: 캐시 없음 4,094ms → 캐시 적용 5.9ms |
-| GET /api/recipes/classifications | [baseline.md](reports/local/recipe-classifications/baseline.md) | 2,000건/초까지 올렸을 때 p95 중앙값: 캐시 없음 51ms → 캐시 적용 1ms |
-| GET /api/search/recipes | [recipes-baseline.md](reports/local/search/recipes-baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 36ms |
-| GET /api/search/products | [products-baseline.md](reports/local/search/products-baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 3ms(상품 17개의 작은 데이터) |
-| GET /api/products | [baseline.md](reports/local/products/baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 2ms(상품 17개의 작은 데이터) |
-| GET /api/recipes | [baseline.md](reports/local/recipes/baseline.md) | 2,000건/초까지 올려도 자동 중단 없이 완주, p95 중앙값 2ms |
-| GET /api/cart-items | [baseline.md](reports/local/cart-read/baseline.md) | 1,000건 단계 p95 4ms, 2,000건 단계 p95 440ms. 요청 1건당 SQL 28문(데이터 8, 트랜잭션 제어 20) |
-| GET /api/sales/popular | [baseline.md](reports/local/sales-popular/baseline.md) | 시작 50초 만에 자동 중단(초당 약 167건까지 올리던 중). 요청마다 클릭 이력 약 10만 행 집계 |
-| POST /api/orders (정확성) | [accuracy-baseline.md](reports/local/orders/accuracy-baseline.md) | 번개 드롭 재고 10개에 100명 동시 주문: 3회 모두 성공 정확히 10건, 5xx 0건, DB 일치 |
-| POST /api/orders (순간 몰림) | [burst-baseline.md](reports/local/orders/burst-baseline.md) | 초당 250건까지 p95 4ms 이하, 500건 단계에서 p95 485ms |
-| POST /api/cart-items (정확성) | [accuracy-baseline.md](reports/local/cart-add/accuracy-baseline.md) | 같은 상품 동시 담기 200건: 5xx 3–10건 → 0건, 수량 유실은 27–36건 → 18–31건으로 남음 ([수정 후](reports/local/cart-add/accuracy-after-fix.md)) |
-| POST /api/cart-items (속도) | [burst-baseline.md](reports/local/cart-add/burst-baseline.md) | 초당 500건 단계 p95 7ms → 44ms, 5xx 0건 ([수정 후](reports/local/cart-add/burst-after-fix.md)) |
-| POST /api/admin/sale-events/flash-drop | [baseline.md](reports/local/flash-drop/baseline.md) | 회원 5만 명: 등록 응답 229ms, 알림 5만 건이 전부 저장되기까지 38.7초(초당 약 1,300건, 유실·중복 없음) |
-| POST /api/webhooks/portone (정확성) | [accuracy-baseline.md](reports/local/webhook/accuracy-baseline.md) | 같은 웹훅 동시 200건: 기록 id당 1건, 서명 오류 20건 모두 401·기록 0건 (결제와 매칭되지 않는 웹훅) |
-| POST /api/webhooks/portone (속도) | [burst-baseline.md](reports/local/webhook/burst-baseline.md) | 1,000건 단계 p95 22ms, 2,000건 단계 p95 1,230ms (결제와 매칭되지 않는 웹훅) |
-
-<sub>로컬에서 측정한 값이라 dev.imhungry.click의 값과 다릅니다.</sub>
-
-### 4-2. dev.imhungry.click
-
-k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)으로 측정했습니다. 응답 시간에 인터넷 왕복 시간이 들어 있습니다.
-
-| API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 보고서 | 핵심 결과 |
-| --- | --- | --- |
-| GET /api/products (가상 사용자(VU) 1,000명) | [baseline.md](reports/dev/products/baseline.md) | 약 900명(초당 430건)까지 p50 21–28ms, 1,000명에서 p50 80–90ms·p95 최대 820ms로 증가. 실패 0% |
-| 상품 상세 진입, 비로그인 (가상 사용자(VU) 1,000명) | [detail-baseline.md](reports/dev/products/detail-baseline.md) | 약 500명(초당 700건)까지 p95 20–34ms. 약 740명부터 초당 요청이 1,000–1,060건에서 멈추고 1,000명에서 p95 1.2–1.3초. 실패 0% |
-| 검색 결과 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [search-page-baseline.md](reports/dev/search/search-page-baseline.md) | 약 600명에서 p95 2초 초과로 자동 중단. 약 230명부터 초당 요청이 530–570건에서 멈춤. 검색 세 요청(자동완성, 레시피·상품 검색)이 먼저 길어짐. 실패 10건(0.02%) |
-| 레시피 상세 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표) | [detail-baseline.md](reports/dev/recipes/detail-baseline.md) | 약 810명에서 p95 2초 초과로 자동 중단. 약 430명부터 초당 요청이 810–865건에서 멈춤. 실패 0% |
-| GET /api/recipes/popular (담당자 조건, 동시 사용자 20명) | [baseline.md](reports/dev/recipes-popular/baseline.md) | 합격선(p95 500ms 미만) 통과. p95 20.86ms, 실패 0%. 캐시 적중 경로 |
-| GET /api/recipes/popular (가상 사용자(VU) 1,000명) | [ramp-baseline.md](reports/dev/recipes-popular/ramp-baseline.md) | 1,000명까지 p50 11–13ms 유지, 초당 약 500건을 따라감. 실패 0%. 캐시 적중 경로 |
-| 메인 화면 진입, 비로그인 (가상 사용자(VU) 1,000명 목표), 지금 뜨는 할인 캐시 전후 | [baseline.md](reports/dev/main/baseline.md) | 개선 전: 약 880명에서 자동 중단, 초당 700–800건에서 멈춤, 지금 뜨는 할인이 가장 느림(시작부터 쌓인 p95가 130초에 2.8초). 개선 후: 초당 1,600건까지 늘고 지금 뜨는 할인은 130초에 120ms. 약 820명부터 다섯 요청이 함께 무너져 2분 48초에 자동 중단, 실패 107건(0.09%) |
-| 장바구니 화면 진입, 로그인 (가상 사용자(VU) 1,000명 목표) | [cart-page-baseline.md](reports/dev/cart-read/cart-page-baseline.md) | 1,000명에 닿은 직후 p95 2초 초과로 자동 중단. 약 390명부터 초당 요청이 331–356건에서 멈춤. 실패 0% |
-| 장바구니 담기·빼기, 로그인 (가상 사용자(VU) 1,000명 목표) | [ramp-baseline.md](reports/dev/cart-add/ramp-baseline.md) | 약 810명에서 자동 중단. 약 250명부터 초당 요청이 285–335건에서 멈추고 네 요청이 함께 길어짐. 실패 0% |
-| 주문하고 나가기, 로그인 (가상 사용자(VU) 1,000명 목표) | [ramp-baseline.md](reports/dev/orders/ramp-baseline.md) | 약 490명에서 자동 중단. 약 120명부터 초당 요청이 202–209건에서 멈추고 다섯 요청이 함께 길어짐. 실패 0%. 중단 때 남은 결제 대기 주문 164건은 5분 뒤 만료 처리로 정리됨 |
-
-<sub>보고서 구성 규칙은 [reports/README.md](reports/README.md)에 있습니다.</sub>
-
-## 5. 디렉터리 구조
+## 4. 디렉터리 구조
 
 ```
 .
@@ -181,14 +135,14 @@ k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)�
 ├── scenarios/    테스트할 API별 폴더(스크립트, 시드·확인 SQL)
 ├── monitoring/   Prometheus, Grafana, Loki, Tempo, Alloy 설정과 대시보드
 ├── app-patch/    소스코드 저장소에 얹는 측정용 변경(메트릭 수집, loadtest 프로필)
-├── reports/      측정 보고서(local/, dev/ 아래 API별 폴더)
+├── reports/      측정 보고서
 ├── docs/         구성도
 └── results/      실행 결과(local/, dev/로 나뉨. 커밋하지 않음, 로그인 쿠키가 들어 있음)
 ```
 
-## 6. 시작하기
+## 5. 시작하기
 
-### 6-1. 필요한 것
+### 5-1. 필요한 것
 
 | 항목&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 조건 | 확인 |
 | --- | --- | --- |
@@ -211,7 +165,7 @@ k6를 집 회선에서 보내 `https://dev.imhungry.click`(앱 t4g.small 1대)�
 - CPU 종류는 맥(arm64)과 인텔·AMD(x86_64) 모두 됩니다. 스크립트가 이 컴퓨터의 CPU를 따라 이미지를 만듭니다. dev.imhungry.click은 arm64(t4g)라서 x86_64에서 측정한 숫자의 절대값은 다릅니다. 숫자는 컴퓨터마다 다르므로 같은 컴퓨터에서 측정한 전후 비교에만 씁니다.
 </details>
 
-### 6-2. 환경 올리기
+### 5-2. 환경 올리기
 
 ```bash
 cd env
@@ -238,7 +192,7 @@ cd env
 - `create-server.sh`, `start-monitoring.sh`, `lib.sh`: `up.sh`가 쓰는 부품입니다
 </details>
 
-### 6-3. 가볍게 먼저 돌려 확인
+### 5-3. 가볍게 먼저 돌려 확인
 
 ```bash
 ./tools/run.sh -e SMOKE=1 scenarios/products/products.js
@@ -246,7 +200,7 @@ cd env
 
 초당 5 → 10건으로 스크립트와 서버가 도는지만 봅니다. 이 숫자는 기록하지 않습니다.
 
-### 6-4. 측정하고 표 만들기
+### 5-4. 측정하고 표 만들기
 
 ```bash
 ./tools/run.sh -e RATES=200,500,1000,2000 scenarios/search/search.js      # 읽기 API: 초당 요청 수 단계 상승
@@ -349,13 +303,13 @@ python3 tools/summarize.py --prefix search --last 3 --steps 200:60,500:60,1000:6
 - **윈도우에서 `bad interpreter`, `\r` 오류**: 저장소를 윈도우 쪽(`/mnt/c`)에서 클론해서 줄바꿈이 깨진 경우입니다. WSL 안에서 다시 클론합니다.
 </details>
 
-### 6-5. dev.imhungry.click에서 돌리기
+### 5-5. dev.imhungry.click에서 돌리기
 
 ```bash
 BASE_URL=https://dev.imhungry.click ./tools/run.sh -e SMOKE=1 scenarios/products/products-list.js   # 먼저 가볍게
 BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/products/products-list.js
 python3 tools/timeline.py results/dev/products-list-<시각>.html
-python3 tools/share-html.py results/dev/products-list-<시각>.html reports/dev/products/   # 보고서 옆에 올릴 사본(로컬 경로 지움)
+python3 tools/share-html.py results/dev/products-list-<시각>.html reports/dev/<API 폴더>/   # 보고서 옆에 올릴 사본(로컬 경로 지움)
 ```
 
 - dev.imhungry.click은 팀 공용입니다. 돌리기 전에 팀 채널에 알리고, 팀원이 적게 쓰는 시간에 03시 정지 전에 끝냅니다.
