@@ -6,7 +6,7 @@
 //   가상 사용자 1명이 테스트 회원 1명을 맡는다.
 //   준비: 회원은 scenarios/dev-prep/members.js로 미리 만든다. setup이 로그인하고 장바구니에 테스트 상품이 없으면 1개씩 담는다.
 // 단계: 0 → 100명(30초) → 500명(60초) → 1,000명(60초) → 1,000명 유지(120초) → 0명(30초). 약 5분.
-// 중단: 실패율 5% 초과 또는 p95 2초 초과가 30초 뒤부터 이어지면 멈춘다.
+// 중단: 실패율 5% 초과가 30초 뒤부터 이어지면 k6가 테스트를 그만둔다. 응답 시간으로는 그만두지 않는다(2026-11-06부터, 그 전 측정은 p95 2초 초과에서도 그만뒀다).
 // 실행: BASE_URL=https://dev.imhungry.click ./tools/run.sh scenarios/orders/order-ramp.js   (옵션: -e MEMBERS=1000 -e PRODUCT_IDS=29,30)
 import http from 'k6/http';
 import exec from 'k6/execution';
@@ -38,7 +38,8 @@ export const options = {
   },
   thresholds: {
     http_req_failed: ['rate<0.01', { threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '30s' }],
-    http_req_duration: ['p(95)<1000', { threshold: 'p(95)<2000', abortOnFail: true, delayAbortEval: '30s' }],
+    // 응답 시간은 끊지 않고 합격선으로만 판정한다. 처리량 상한에 닿은 뒤의 모습까지 끝까지 본다.
+    http_req_duration: ['p(95)<1000'],
   },
 };
 
